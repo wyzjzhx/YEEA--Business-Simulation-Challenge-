@@ -3,29 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ABS商业模拟赛 - 表格填写+Web展示版 | YEEA</title>
+    <title>ABS商业模拟赛 - 表格填写版 | YEEA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: linear-gradient(145deg, #e9f0f5 0%, #d9e2ec 100%); margin: 0; padding: 20px; min-height: 100vh; }
         
+        /* 头部样式 */
         .header { background: linear-gradient(135deg, #1e3a5f, #0f2b3d); color: white; padding: 20px; border-radius: 30px; margin-bottom: 20px; text-align: center; }
-        .student-panel { background: #fef3c7; border: 3px solid #f59e0b; border-radius: 30px; padding: 20px; margin-bottom: 25px; text-align: center; }
-        .teacher-panel { background: #e0f2fe; border-radius: 20px; padding: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
-        .sync-status { display: inline-flex; align-items: center; gap: 8px; background: white; padding: 5px 15px; border-radius: 50px; font-size: 0.8rem; margin-bottom: 15px; }
-        .status-online { color: #10b981; }
-        .status-offline { color: #ef4444; }
-        .ranking-global { background: white; border-radius: 2rem; padding: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .ranking-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 16px; display: flex; justify-content: space-between; flex-wrap: wrap; }
+        
+        /* 学生入口卡片 - 绿色醒目 */
+        .student-card { background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 30px; padding: 25px; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .student-card a { color: #fef08a; font-weight: bold; font-size: 1.1rem; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 50px; display: inline-block; margin-top: 10px; text-decoration: none; }
+        .student-card a:hover { background: rgba(0,0,0,0.3); }
+        
+        /* 教师控制台 */
+        .teacher-panel { background: white; border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        /* 手动粘贴区域 */
+        .paste-area { background: #fef3c7; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 2px solid #f59e0b; }
+        .paste-area textarea { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid #f59e0b; font-family: monospace; font-size: 13px; background: white; }
+        
+        /* 按钮样式 */
+        .btn { border: none; padding: 10px 22px; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: #3370ff; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-purple { background: #8b5cf6; color: white; }
+        .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
+        
+        /* 排行榜 */
+        .ranking-global { background: white; border-radius: 2rem; padding: 20px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .ranking-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 16px; display: flex; justify-content: space-between; flex-wrap: wrap; }
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th, .ranking-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        
+        /* 队伍卡片 */
         .players-dashboard { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
-        .player-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; overflow: hidden; transition: all 0.2s; }
+        .player-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; overflow: hidden; }
         .card-header { background: #1e2a3e; color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
-        .company-name { font-size: 1.3rem; font-weight: bold; }
-        .city-badge { background: #ffb347; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; color: #2d2f36; }
-        .networth { background: #2c3e50; padding: 6px 14px; border-radius: 30px; font-family: monospace; font-weight: bold; }
+        .company-name { font-size: 1.2rem; font-weight: bold; }
+        .city-badge { background: #ffb347; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; color: #2d2f36; }
+        .networth { background: #2c3e50; padding: 6px 14px; border-radius: 30px; font-family: monospace; font-size: 0.9rem; }
         .stats-grid { padding: 12px 18px; background: #f8fafc; display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; }
         .decisions-preview { padding: 12px 18px; background: #f1f5f9; font-size: 0.75rem; }
         .decisions-preview span { display: inline-block; margin-right: 15px; margin-bottom: 5px; }
@@ -34,14 +55,13 @@
         .status-bankrupt { background: #ef4444; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
         .status-active { background: #10b981; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
         .status-done { background: #3b82f6; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
-        .refresh-btn { background: #3b82f6; border: none; color: white; padding: 10px 24px; border-radius: 40px; cursor: pointer; font-weight: bold; }
-        .reset-btn { background: #ef4444; }
-        .advance-btn { background: #10b981; }
-        .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 0.8rem; }
-        button { cursor: pointer; transition: 0.2s; }
-        button:hover { transform: scale(0.98); opacity: 0.9; }
-        .instruction { background: #eef2ff; border-left: 4px solid #3b82f6; padding: 12px 20px; border-radius: 16px; margin-top: 15px; text-align: left; }
-        .instruction ol { margin: 8px 0 0 20px; }
+        
+        .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 0.75rem; }
+        .example-table { background: #f8fafc; border-radius: 16px; padding: 15px; margin-top: 15px; font-size: 0.75rem; overflow-x: auto; }
+        .example-table table { width: 100%; border-collapse: collapse; }
+        .example-table td { padding: 8px; border: 1px solid #cbd5e1; }
+        button:hover { transform: scale(0.97); opacity: 0.9; }
+        .sync-status { display: inline-flex; align-items: center; gap: 8px; background: #e2e8f0; padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; margin-bottom: 15px; }
         @media (max-width: 860px) { .player-card { width: 100%; } }
     </style>
 </head>
@@ -49,93 +69,144 @@
 
 <div class="header">
     <h1>🏫 金陵中学河西分校国际部经济学社团</h1>
-    <p>ABS商业模拟挑战赛 · 表格填写 + Web自动计算</p>
+    <p>ABS商业模拟挑战赛 · 腾讯文档/石墨表格填写版</p>
+    <p style="font-size:0.8rem;"><i class="fas fa-mobile-alt"></i> 学生填表格 → 教师粘贴数据 → Web自动计算</p>
 </div>
 
-<!-- 学生操作区 -->
-<div class="student-panel">
-    <i class="fas fa-file-excel" style="font-size: 2rem; color: #f59e0b;"></i>
+<!-- ========= 学生入口（醒目绿色卡片） ========= -->
+<div class="student-card">
+    <i class="fas fa-file-excel" style="font-size: 2.5rem;"></i>
     <h2>📝 学生决策填写入口</h2>
-    <p style="font-size: 1.1rem;">👇 点击下方链接，在表格中填写本轮决策</p>
-    <div id="docLinkArea">
-        <a id="docUrl" href="#" target="_blank" style="font-size: 1.2rem; font-weight: bold; word-break: break-all;">加载中...</a>
+    <p>👇 点击下方链接，打开表格填写本轮决策</p>
+    <a id="sheetDocLink" href="#" target="_blank">加载中...</a>
+    <div style="margin-top: 15px;">
+        <button id="copyLinkBtn" class="btn" style="background: rgba(255,255,255,0.2);"><i class="fas fa-copy"></i> 复制链接发班级群</button>
     </div>
-    <button id="copyLinkBtn" style="background: #f59e0b; margin-top: 10px;"><i class="fas fa-copy"></i> 复制链接发班级群</button>
-    <div class="instruction">
-        <strong>📌 学生填写说明：</strong>
-        <ol>
-            <li>点击上方链接打开腾讯文档/石墨表格</li>
-            <li>按表头填写：<strong>队伍名称、城市、生产数量、质量投资、定价、代理商数、营销支出</strong></li>
-            <li>填完后保存，Web页面会自动读取并计算利润和排名</li>
-            <li>每轮只填一次，教师点击"推进至下一轮"后开始新一轮</li>
-        </ol>
+    
+    <!-- 表头说明 -->
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 15px; text-align: left;">
+        <strong>📌 表格填写说明（第一行是表头，不要改）：</strong>
+        <div class="example-table" style="background: rgba(255,255,255,0.1); margin-top: 10px;">
+            <table style="color: white;">
+                <thead><tr style="background: rgba(0,0,0,0.2);"><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+                <tr><th>队伍名称</th><th>城市</th><th>生产数量</th><th>质量投资</th><th>定价</th><th>代理商数</th><th>营销支出</th></tr></thead>
+                <tbody>
+                    <tr><td>飞跃集团</td><td>上海</td><td>220</td><td>35</td><td>72</td><td>4</td><td>45</td></tr>
+                    <tr><td>创新科技</td><td>北京</td><td>180</td><td>28</td><td>68</td><td>3</td><td>38</td></tr>
+                    <tr><td>西部之星</td><td>成都</td><td>250</td><td>42</td><td>65</td><td>5</td><td>52</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="margin-top: 10px; font-size: 0.7rem;">💡 城市只能填：上海、北京、广州、成都</p>
     </div>
 </div>
 
-<!-- 教师操作区 -->
+<!-- ========= 教师控制台 ========= -->
 <div class="teacher-panel">
     <strong><i class="fas fa-chalkboard-teacher"></i> 教师控制台：</strong>
-    <button id="fetchDataBtn" class="refresh-btn"><i class="fas fa-sync-alt"></i> 读取表格数据</button>
-    <button id="advanceRoundBtn" class="advance-btn"><i class="fas fa-forward"></i> 推进至下一轮</button>
-    <button id="resetGameBtn" class="reset-btn"><i class="fas fa-trash"></i> 重置比赛</button>
-    <button id="exportCsvBtn"><i class="fas fa-download"></i> 导出排行榜</button>
-    <span style="margin-left: 10px;">🏆 当前轮次: <strong id="currentRoundSpan">1</strong> / 6</span>
+    <button id="showPasteBtn" class="btn btn-primary"><i class="fas fa-table"></i> 📋 从表格粘贴数据</button>
+    <button id="advanceRoundBtn" class="btn btn-success"><i class="fas fa-forward"></i> ⏩ 推进至下一轮</button>
+    <button id="resetGameBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 🔄 重置比赛</button>
+    <button id="exportCsvBtn" class="btn btn-warning"><i class="fas fa-download"></i> 📎 导出排行榜</button>
+    <span>🏆 当前轮次: <strong id="currentRoundSpan">1</strong> / 6</span>
+</div>
+
+<!-- ========= 粘贴数据区域（核心） ========= -->
+<div id="pasteArea" class="paste-area" style="display: none;">
+    <h3><i class="fas fa-paste"></i> 从表格粘贴数据</h3>
+    <p>1. 在腾讯文档/石墨表格中选中数据区域（包含表头）→ 2. 按 Ctrl+C 复制 → 3. 粘贴到下方框内</p>
+    <textarea id="pasteData" rows="6" placeholder="粘贴表格数据示例：
+队伍名称	城市	生产数量	质量投资	定价	代理商数	营销支出
+飞跃集团	上海	220	35	72	4	45
+创新科技	北京	180	28	68	3	38
+西部之星	成都	250	42	65	5	52
+岭南实业	广州	200	30	70	3	40"></textarea>
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 15px;">
+        <button id="confirmPasteBtn" class="btn btn-success"><i class="fas fa-check"></i> 确认导入并计算</button>
+        <button id="cancelPasteBtn" class="btn" style="background:#94a3b8;"><i class="fas fa-times"></i> 取消</button>
+    </div>
 </div>
 
 <!-- 同步状态 -->
 <div style="text-align: center; margin-bottom: 15px;">
     <div class="sync-status">
-        <i class="fas fa-cloud" id="syncIcon"></i>
-        <span id="syncStatusText">等待读取数据</span>
-        <span id="lastUpdateTime" style="font-size: 0.7rem;"></span>
+        <i class="fas fa-cloud-upload-alt" id="syncIcon" style="color:#10b981;"></i>
+        <span id="syncStatusText">等待导入数据</span>
+        <span id="lastUpdateTime"></span>
     </div>
 </div>
 
-<!-- 排行榜 -->
+<!-- ========= 排行榜 ========= -->
 <div class="ranking-global">
     <div class="ranking-title">
-        <span><i class="fas fa-trophy"></i> 🏆 实时排行榜</span>
-        <span>📊 队伍数: <span id="teamCount">0</span></span>
+        <span><i class="fas fa-trophy" style="color:#f59e0b;"></i> 🏆 实时排行榜</span>
+        <span>📊 参赛队伍: <span id="teamCount">0</span> 支</span>
     </div>
-    <table class="ranking-table">
-        <thead>
-            <tr><th>排名</th><th>队伍名称</th><th>城市</th><th>净资产(万)</th><th>轮次</th><th>状态</th><th>上轮利润</th></tr>
-        </thead>
-        <tbody id="rankingBody"></tbody>
-    </table>
+    <div style="overflow-x: auto;">
+        <table class="ranking-table">
+            <thead>
+                <tr style="background:#f1f5f9;">
+                    <th>🏅排名</th><th>🏢队伍名称</th><th>📍城市</th><th>💰净资产(万)</th><th>🎯轮次</th><th>📊状态</th><th>📈上轮利润</th>
+                </tr>
+            </thead>
+            <tbody id="rankingBody"></tbody>
+        </table>
+    </div>
 </div>
 
-<!-- 队伍卡片 -->
+<!-- ========= 队伍卡片展示 ========= -->
 <div class="players-dashboard" id="playersContainer"></div>
 
 <div class="footer">
-    <i class="fas fa-chart-line"></i> 系统说明：学生在表格填写决策 → 教师点击"读取表格数据" → Web自动计算利润和净资产 → 排行榜实时更新
+    <i class="fas fa-chart-line"></i> 使用流程：学生填表格 → 教师复制表格数据 → 点击"从表格粘贴数据" → 粘贴 → 确认导入 → Web自动计算
+    <br>💡 每轮结束后点击"推进至下一轮"，学生填写新一轮数据，教师重新粘贴导入
 </div>
 
 <script>
     // ==================== 配置区域 ====================
-    // ⚠️ 请替换为您自己创建的石墨文档/腾讯文档的公开CSV导出链接！
-    // 
-    // 【石墨文档】操作步骤：
-    // 1. 创建表格，设置表头，填入数据
-    // 2. 点击"分享" → "获得链接" → 权限设为"获得链接可编辑"
-    // 3. 在分享链接后面加上 "/export/csv" 获得导出地址
-    //    例如: https://shimo.im/sheets/xxx/  →  https://shimo.im/sheets/xxx/export/csv
-    //
-    // 【腾讯文档】操作步骤：
-    // 1. 创建表格
-    // 2. 发布为网页 → 获得发布链接
-    // 3. 或用 SheetJS 读取，这里使用模拟数据+手动上传方式
-    //
-    // 由于跨域限制，这里提供一个模拟数据上传 + 手动导入功能
-    // 实际使用时可以用 Google Sheets + Google Apps Script 或 开源方案
+    // 请替换为您自己创建的腾讯文档或石墨表格链接！
     // =================================================
+    
+    // 方式1：腾讯文档（推荐国内用户）
+    const TENCENT_DOC_URL = "https://docs.qq.com/sheet/DYUdiRFJHWFZkeEJ5?tab=BB08J2";  // 👈 替换为您的腾讯文档链接
+    
+    // 方式2：石墨文档（备选）
+    const SHIMO_DOC_URL = "https://shimo.im/sheets/xxxxxxxxxxx/";     // 👈 替换为您的石墨文档链接
+    
+    // 自动选择已配置的链接
+    let docUrl = "";
+    if (TENCENT_DOC_URL !== "https://docs.qq.com/sheet/xxxxxxxxxxx") {
+        docUrl = TENCENT_DOC_URL;
+    } else if (SHIMO_DOC_URL !== "https://shimo.im/sheets/xxxxxxxxxxx/") {
+        docUrl = SHIMO_DOC_URL;
+    } else {
+        docUrl = "https://docs.qq.com/";  // 默认地址，提示用户替换
+    }
+    
+    // 显示文档链接
+    const linkElement = document.getElementById("sheetDocLink");
+    if (docUrl && docUrl !== "https://docs.qq.com/") {
+        linkElement.href = docUrl;
+        linkElement.innerText = docUrl;
+    } else {
+        linkElement.innerHTML = "⚠️ 请先创建腾讯文档/石墨表格，并替换代码中的链接";
+        linkElement.href = "#";
+    }
+    
+    // 复制链接
+    document.getElementById("copyLinkBtn").onclick = () => {
+        if (docUrl && docUrl !== "https://docs.qq.com/") {
+            navigator.clipboard.writeText(docUrl);
+            alert("✅ 链接已复制，可以发到班级群让学生填写");
 
+            alert("⚠️ 请先替换代码中的表格链接");
+        }
+    };
+    
+    // ==================== 游戏常量 ====================
     const MAX_ROUNDS = 6;
     const START_CAPITAL = 400;
     const BANKRUPT_LIMIT = -200;
-    const LOAN_RATE = 0.05;
-    const ADMIN_PWD = "yeea26";
     
     const CITIES = {
         "上海": { costIndex: 1.0, marketBase: 1200, prodCostBase: 28 },
@@ -144,42 +215,24 @@
         "成都": { costIndex: 0.85, marketBase: 900, prodCostBase: 22 }
     };
     
-    // 队伍数据
+    // 全局数据
     let teams = [];
     let currentRound = 1;
+    let chartCache = {};
     
-    // ========== 示例文档链接（请替换） ==========
-    // 方式1：使用腾讯文档（推荐中国用户）
-    const TENCENT_DOC_URL = "https://docs.qq.com/sheet/XXXXXXXX";  // 👈 替换为您的文档链接
-    
-    // 方式2：使用石墨文档
-    const SHIMO_DOC_URL = "https://shimo.im/sheets/XXXXXXXX/";     // 👈 替换为您的文档链接
-    
-    // 显示文档链接
-    const docLink = TENCENT_DOC_URL !== "https://docs.qq.com/sheet/XXXXXXXX" ? TENCENT_DOC_URL : SHIMO_DOC_URL;
-    document.getElementById("docUrl").href = docLink;
-    document.getElementById("docUrl").innerText = docLink || "请先创建表格并替换链接";
-    
-    document.getElementById("copyLinkBtn").onclick = () => {
-        navigator.clipboard.writeText(docLink);
-        alert("✅ 链接已复制，发班级群让学生填写");
-    };
-    
-    // ========== 核心计算引擎 ==========
-    function calculateSalesAndProfit(team, round) {
+    // ==================== 核心计算引擎 ====================
+    function calculateProfit(team) {
         const cityCfg = CITIES[team.city] || CITIES["上海"];
         
-        // 计算成本
+        // 成本计算
         const unitCost = cityCfg.prodCostBase * cityCfg.costIndex;
-        const prodCost = team.quantity * unitCost;
-        const interest = (team.loan || 0) * LOAN_RATE;
-        const totalCost = prodCost + (team.quality || 0) + (team.marketing || 0) + interest;
+        const prodCost = (team.quantity || 150) * unitCost;
+        const totalCost = prodCost + (team.quality || 0) + (team.marketing || 0);
         
-        // 计算竞争力
-        const PQI = team.quantity > 0 ? (team.quality || 0) / team.quantity : 0;
+        // 竞争力计算
+        const PQI = (team.quantity > 0 ? (team.quality || 0) / team.quantity : 0);
         const SPI = (team.marketing || 0) * (1 + 0.1 * (team.agents || 0));
         
-        // 价格吸引力
         const priceScore = Math.max(0, Math.min(1, (180 - (team.price || 60)) / 150));
         const qualityScore = Math.min(1, PQI / 3.0);
         const marketingScore = Math.min(1, SPI / 200);
@@ -191,7 +244,8 @@
         const share = attrScore * 0.8 + 0.2;
         
         let sales = Math.floor(marketBase * share);
-        sales = Math.min(sales, team.quantity);
+        sales = Math.min(sales, team.quantity || 150);
+        sales = Math.max(0, sales);
         
         const revenue = sales * (team.price || 60);
         const profit = revenue - totalCost;
@@ -199,22 +253,31 @@
         return { profit, sales, revenue };
     }
     
-    // 处理所有队伍的计算
-    function processAllTeams() {
+    // 更新所有队伍的净资产
+    function updateAllTeams() {
         for (let team of teams) {
             if (team.status === "bankrupt") continue;
             if (team.status === "completed") continue;
             
-            const { profit } = calculateSalesAndProfit(team, team.round);
+            const { profit } = calculateProfit(team);
             team.lastProfit = profit;
             team.netWorth = (team.netWorth || START_CAPITAL) + profit;
             
+            // 记录历史
+            if (!team.history) team.history = [START_CAPITAL];
+            team.history.push(team.netWorth);
+            if (team.history.length > 7) team.history.shift();
+            
+            // 状态判定
             if (team.netWorth <= BANKRUPT_LIMIT) {
                 team.status = "bankrupt";
             } else if (team.round >= MAX_ROUNDS) {
                 team.status = "completed";
+            } else {
+                team.status = "active";
             }
         }
+        
         // 按净资产排序
         teams.sort((a, b) => (b.netWorth || START_CAPITAL) - (a.netWorth || START_CAPITAL));
     }
@@ -222,59 +285,111 @@
     // 推进到下一轮
     function advanceToNextRound() {
         if (currentRound >= MAX_ROUNDS) {
-            alert("比赛已全部完成！");
+            alert("🎉 比赛已全部完成！");
             return;
         }
         
         // 先计算本轮结果
-        processAllTeams();
+        updateAllTeams();
         
-        // 增加轮次
+        // 轮次+1
         currentRound++;
         
-        // 重置提交标记，保留现有数值
+        // 重置队伍状态（保留数据但允许新一轮填写）
         for (let team of teams) {
-            if (team.status === "active" || team.status === "operating") {
-                team.round = currentRound - 1;
-                team.status = "active";
+            if (team.status === "active") {
+                team.round = currentRound;
+                // 保留上一轮决策作为默认值，学生可覆盖
             }
-            // 不清空决策数据，让学生覆盖填写即可
         }
         
         updateUI();
-        alert(`✅ 已推进至第 ${currentRound} 轮！学生可以填写新一轮决策`);
+        alert(`✅ 已推进至第 ${currentRound} 轮！学生可以填写新一轮决策数据，然后教师重新粘贴导入`);
     }
     
-    // ========== 数据导入（核心） ==========
-    // 从表格导入决策数据
-    function importDecisionsFromSheet(sheetData) {
-        // sheetData 格式: [{ teamName, city, quantity, quality, price, agents, marketing }]
-        // 更新现有队伍或创建新队伍
-        for (let newData of sheetData) {
-            let existing = teams.find(t => t.name === newData.teamName);
+    // ==================== 数据导入 ====================
+    // 解析粘贴的表格数据
+    function parseTableData(text) {
+        let lines = text.trim().split(/\r?\n/);
+        if (lines.length < 2) return [];
+        
+        let rows = [];
+        let startRow = 0;
+        
+        // 检查第一行是否是表头
+        let firstLine = lines[0].toLowerCase();
+        if (firstLine.includes("队伍") || firstLine.includes("名称") || 
+            firstLine.includes("城市") || firstLine.includes("生产")) {
+            startRow = 1;  // 跳过表头
+        }
+        
+        for (let i = startRow; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+            
+            // 支持 Tab 或 逗号 分隔
+            let parts = line.split(/\t|,/);
+            if (parts.length < 3) continue;
+            
+            let name = parts[0]?.trim();
+            if (!name || name === "队伍名称") continue;
+            
+            let city = parts[1]?.trim() || "上海";
+            if (!CITIES[city]) city = "上海";
+            
+            let quantity = parseInt(parts[2]) || 150;
+            let quality = parseInt(parts[3]) || 30;
+            let price = parseInt(parts[4]) || 65;
+            let agents = parseInt(parts[5]) || 3;
+            let marketing = parseInt(parts[6]) || 35;
+            
+            rows.push({
+                name: name,
+                city: city,
+                quantity: Math.max(30, Math.min(800, quantity)),
+                quality: Math.max(0, Math.min(200, quality)),
+                price: Math.max(30, Math.min(180, price)),
+                agents: Math.max(0, Math.min(12, agents)),
+                marketing: Math.max(5, Math.min(250, marketing))
+            });
+        }
+        
+        return rows;
+    }
+    
+    // 导入队伍数据
+    function importTeams(rows) {
+        if (rows.length === 0) {
+            alert("未识别到有效数据，请检查格式");
+            return false;
+        }
+        
+        for (let row of rows) {
+            let existing = teams.find(t => t.name === row.name);
+            
             if (existing) {
-                // 更新决策
-                existing.quantity = newData.quantity;
-                existing.quality = newData.quality;
-                existing.price = newData.price;
-                existing.agents = newData.agents;
-                existing.marketing = newData.marketing;
+                // 更新现有队伍
+                existing.quantity = row.quantity;
+                existing.quality = row.quality;
+                existing.price = row.price;
+                existing.agents = row.agents;
+                existing.marketing = row.marketing;
                 if (existing.status !== "bankrupt" && existing.status !== "completed") {
                     existing.status = "active";
                 }
             } else {
-                // 新队伍
+                // 创建新队伍
                 teams.push({
-                    name: newData.teamName,
-                    city: newData.city,
+                    name: row.name,
+                    city: row.city,
                     netWorth: START_CAPITAL,
                     round: currentRound,
                     loan: 0,
-                    quantity: newData.quantity,
-                    quality: newData.quality,
-                    price: newData.price,
-                    agents: newData.agents,
-                    marketing: newData.marketing,
+                    quantity: row.quantity,
+                    quality: row.quality,
+                    price: row.price,
+                    agents: row.agents,
+                    marketing: row.marketing,
                     lastProfit: 0,
                     status: "active",
                     history: [START_CAPITAL]
@@ -283,44 +398,85 @@
         }
         
         // 重新计算
-        processAllTeams();
+        updateAllTeams();
         updateUI();
+        
         document.getElementById("syncStatusText").innerHTML = "✅ 数据已更新";
         document.getElementById("lastUpdateTime").innerHTML = new Date().toLocaleTimeString();
         setTimeout(() => {
-            document.getElementById("syncStatusText").innerHTML = "等待读取数据";
+            document.getElementById("syncStatusText").innerHTML = "等待导入数据";
         }, 2000);
+        
+        return true;
     }
     
-    // ========== 手动输入模式（备选，无需云端） ==========
-    // 展示手动输入弹窗
-    function showManualInputDialog() {
-        let currentData = teams.map(t => `${t.name}|${t.city}|${t.quantity}|${t.quality}|${t.price}|${t.agents}|${t.marketing}`).join("\n");
-        let input = prompt("📝 粘贴表格数据\n格式：队伍名|城市|生产数量|质量投资|定价|代理商数|营销支出\n\n示例：\n飞跃集团|上海|220|35|72|4|45\n创新科技|北京|180|28|68|3|38", currentData);
-        if (input) {
-            let lines = input.split("\n");
-            let sheetData = [];
-            for (let line of lines) {
-                let parts = line.split("|");
-                if (parts.length >= 5) {
-                    sheetData.push({
-                        teamName: parts[0].trim(),
-                        city: parts[1].trim(),
-                        quantity: parseInt(parts[2]) || 150,
-                        quality: parseInt(parts[3]) || 30,
-                        price: parseInt(parts[4]) || 65,
-                        agents: parseInt(parts[5]) || 3,
-                        marketing: parseInt(parts[6]) || 35
-                    });
-                }
-            }
-            if (sheetData.length > 0) {
-                importDecisionsFromSheet(sheetData);
-                alert(`✅ 已导入 ${sheetData.length} 支队伍数据`);
-            } else {
-                alert("格式错误，请使用：队伍名|城市|数量|质量|定价|代理|营销");
-            }
+    // ==================== UI渲染 ====================
+    function updateUI() {
+        document.getElementById("currentRoundSpan").innerText = currentRound;
+        document.getElementById("teamCount").innerText = teams.length;
+        
+        // 渲染排行榜
+        let rankingBody = document.getElementById("rankingBody");
+        rankingBody.innerHTML = "";
+        
+        teams.forEach((team, idx) => {
+            let tr = rankingBody.insertRow();
+            tr.insertCell(0).innerText = idx + 1;
+            tr.insertCell(1).innerText = team.name;
+            tr.insertCell(2).innerText = team.city;
+            let netClass = (team.netWorth || START_CAPITAL) >= START_CAPITAL ? "badge-profit" : "badge-loss";
+            tr.insertCell(3).innerHTML = `<strong class="${netClass}">${(team.netWorth || START_CAPITAL).toFixed(1)}万</strong>`;
+            tr.insertCell(4).innerText = `${team.round}/${MAX_ROUNDS}`;
+            
+            let statusText = team.status === "bankrupt" ? "💀破产" : (team.status === "completed" ? "🏁完成" : "🔹运营中");
+            let statusColor = team.status === "bankrupt" ? "#ef4444" : (team.status === "completed" ? "#10b981" : "#3b82f6");
+            tr.insertCell(5).innerHTML = `<span style="color:${statusColor}">${statusText}</span>`;
+            
+            let profitClass = (team.lastProfit || 0) >= 0 ? "badge-profit" : "badge-loss";
+            tr.insertCell(6).innerHTML = `<span class="${profitClass}">${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>`;
+        });
+        
+        // 渲染队伍卡片
+        let container = document.getElementById("playersContainer");
+        container.innerHTML = "";
+        
+        for (let team of teams) {
+            let card = document.createElement("div");
+            card.className = "player-card";
+            
+            let statusClass = team.status === "bankrupt" ? "status-bankrupt" : (team.status === "completed" ? "status-done" : "status-active");
+            let statusText = team.status === "bankrupt" ? "破产" : (team.status === "completed" ? "已完成" : "运营中");
+            let netColor = (team.netWorth || START_CAPITAL) >= START_CAPITAL ? "#10b981" : "#ef4444";
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="company-name">🏢 ${team.name}</span>
+                    <span class="city-badge">${team.city}</span>
+                    <span class="networth" style="color:${netColor}">💰 ${(team.netWorth || START_CAPITAL).toFixed(1)}万</span>
+                </div>
+                <div class="stats-grid">
+                    <span>🎯 轮次: ${team.round}/${MAX_ROUNDS}</span>
+                    <span>📈 上轮: ${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>
+                    <span class="${statusClass}">${statusText}</span>
+                </div>
+                <div class="decisions-preview">
+                    <strong>📋 本轮决策：</strong><br>
+                    <span>📦 生产: ${team.quantity || '-'}</span>
+                    <span>✨ 质量: ${team.quality || '-'}万</span>
+                    <span>💰 定价: ${team.price || '-'}万</span>
+                    <span>🤝 代理: ${team.agents || '-'}人</span>
+                    <span>📢 营销: ${team.marketing || '-'}万</span>
+                </div>
+            `;
+            container.appendChild(card);
         }
+        
+        // 简单图表（可选）
+        drawCharts();
+    }
+    
+    function drawCharts() {
+        // 简化：不画复杂图表，避免性能问题
     }
     
     // 重置游戏
@@ -336,8 +492,8 @@
     // 导出CSV
     function exportCSV() {
         let csv = "排名,队伍名称,城市,净资产(万),当前轮次,状态,上轮利润,生产数量,质量投资,定价,代理商,营销支出\n";
-        teams.forEach((t, idx) => {
-            csv += `${idx+1},${t.name},${t.city},${(t.netWorth || START_CAPITAL).toFixed(1)},${t.round}/${MAX_ROUNDS},${t.status},${(t.lastProfit || 0).toFixed(1)},${t.quantity || 0},${t.quality || 0},${t.price || 0},${t.agents || 0},${t.marketing || 0}\n`;
+        teams.forEach((team, idx) => {
+            csv += `${idx+1},${team.name},${team.city},${(team.netWorth || START_CAPITAL).toFixed(1)},${team.round}/${MAX_ROUNDS},${team.status},${(team.lastProfit || 0).toFixed(1)},${team.quantity || 0},${team.quality || 0},${team.price || 0},${team.agents || 0},${team.marketing || 0}\n`;
         });
         let blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
         let a = document.createElement("a");
@@ -346,111 +502,78 @@
         a.click();
     }
     
-    // 更新UI
-    function updateUI() {
-        document.getElementById("currentRoundSpan").innerText = currentRound;
-        document.getElementById("teamCount").innerText = teams.length;
-        
-        // 渲染排行榜
-        let rankingBody = document.getElementById("rankingBody");
-        rankingBody.innerHTML = "";
-        let sorted = [...teams].sort((a,b) => (b.netWorth || START_CAPITAL) - (a.netWorth || START_CAPITAL));
-        sorted.forEach((team, idx) => {
-            let tr = rankingBody.insertRow();
-            tr.insertCell(0).innerText = idx + 1;
-            tr.insertCell(1).innerText = team.name;
-            tr.insertCell(2).innerText = team.city;
-            let netClass = (team.netWorth || START_CAPITAL) >= START_CAPITAL ? "badge-profit" : "badge-loss";
-            tr.insertCell(3).innerHTML = `<strong class="${netClass}">${(team.netWorth || START_CAPITAL).toFixed(1)}万</strong>`;
-            tr.insertCell(4).innerText = `${team.round}/${MAX_ROUNDS}`;
-            let statusText = team.status === "bankrupt" ? "💀破产" : (team.status === "completed" ? "🏁完成" : "🔹运营中");
-            let statusColor = team.status === "bankrupt" ? "#ef4444" : (team.status === "completed" ? "#10b981" : "#3b82f6");
-            tr.insertCell(5).innerHTML = `<span style="color:${statusColor}">${statusText}</span>`;
-            let profitClass = (team.lastProfit || 0) >= 0 ? "badge-profit" : "badge-loss";
-            tr.insertCell(6).innerHTML = `<span class="${profitClass}">${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>`;
-        });
-        
-        // 渲染队伍卡片
-        let container = document.getElementById("playersContainer");
-        container.innerHTML = "";
-        for (let team of sorted) {
-            let card = document.createElement("div");
-            card.className = "player-card";
-            let statusClass = team.status === "bankrupt" ? "status-bankrupt" : (team.status === "completed" ? "status-done" : "status-active");
-            let statusText = team.status === "bankrupt" ? "破产" : (team.status === "completed" ? "已完成" : "运营中");
-            
-            card.innerHTML = `
-                <div class="card-header">
-                    <span class="company-name">🏢 ${team.name}</span>
-                    <span class="city-badge">${team.city}</span>
-                    <span class="networth">💰 ${(team.netWorth || START_CAPITAL).toFixed(1)}万</span>
-                </div>
-                <div class="stats-grid">
-                    <span>📊 轮次: ${team.round}/${MAX_ROUNDS}</span>
-                    <span>📈 上轮: ${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>
-                    <span class="${statusClass}">${statusText}</span>
-                </div>
-                <div class="decisions-preview">
-                    <strong>📋 本轮决策：</strong><br>
-                    <span>📦 生产: ${team.quantity || '-'}</span>
-                    <span>✨ 质量: ${team.quality || '-'}万</span>
-                    <span>💰 定价: ${team.price || '-'}万</span>
-                    <span>🤝 代理: ${team.agents || '-'}人</span>
-                    <span>📢 营销: ${team.marketing || '-'}万</span>
-                </div>
-            `;
-            container.appendChild(card);
-        }
-    }
-    
-    // 示例数据（演示用，实际从表格读取）
-    function loadDemoData() {
-        let demo = [
-            { teamName: "飞跃集团", city: "上海", quantity: 220, quality: 35, price: 72, agents: 4, marketing: 45 },
-            { teamName: "创新科技", city: "北京", quantity: 180, quality: 28, price: 68, agents: 3, marketing: 38 },
-            { teamName: "西部之星", city: "成都", quantity: 250, quality: 42, price: 65, agents: 5, marketing: 52 },
-            { teamName: "岭南实业", city: "广州", quantity: 200, quality: 30, price: 70, agents: 3, marketing: 40 }
-        ];
-        importDecisionsFromSheet(demo);
-    }
-    
-    // 绑定事件
+    // ==================== 事件绑定 ====================
     function bindEvents() {
-        // 读取表格数据按钮 - 打开手动输入（因为跨域限制，演示用）
-        document.getElementById("fetchDataBtn").onclick = () => {
-            showManualInputDialog();
+        // 显示粘贴区域
+        document.getElementById("showPasteBtn").onclick = () => {
+            document.getElementById("pasteArea").style.display = "block";
         };
         
+        // 取消粘贴
+        document.getElementById("cancelPasteBtn").onclick = () => {
+            document.getElementById("pasteArea").style.display = "none";
+            document.getElementById("pasteData").value = "";
+        };
+        
+        // 确认导入
+        document.getElementById("confirmPasteBtn").onclick = () => {
+            let text = document.getElementById("pasteData").value;
+            if (!text.trim()) {
+                alert("请先粘贴表格数据");
+                return;
+            }
+            
+            let rows = parseTableData(text);
+            if (rows.length === 0) {
+                alert("未识别到有效数据，请检查格式\n\n格式应为：队伍名\t城市\t数量\t质量\t定价\t代理\t营销");
+                return;
+            }
+            
+            importTeams(rows);
+            document.getElementById("pasteArea").style.display = "none";
+            document.getElementById("pasteData").value = "";
+        };
+        
+        // 推进回合
         document.getElementById("advanceRoundBtn").onclick = () => {
-            if (confirm(`确认推进到第 ${currentRound + 1} 轮？学生需填写新一轮决策`)) {
+            if (teams.length === 0) {
+                alert("请先导入队伍数据");
+                return;
+            }
+            if (confirm(`确认推进到第 ${currentRound + 1} 轮？`)) {
                 advanceToNextRound();
             }
         };
         
+        // 重置比赛
         document.getElementById("resetGameBtn").onclick = () => {
             resetGame();
         };
         
+        // 导出CSV
         document.getElementById("exportCsvBtn").onclick = () => {
+            if (teams.length === 0) {
+                alert("没有数据可导出");
+                return;
+            }
             exportCSV();
         };
-        
-        // 管理员密码解锁（可选）
-        let adminBtn = document.getElementById("unlockAdminBtn");
-        if (adminBtn) {
-            adminBtn.onclick = () => {
-                let pwd = prompt("输入管理员密码");
-                if (pwd === ADMIN_PWD) {
-                    alert("管理员模式已解锁");
-                }
-            };
-        }
     }
     
-    // 初始化
-    loadDemoData();  // 先加载示例数据
+    // 初始化示例数据（演示用）
+    function initDemoData() {
+        teams = [
+            { name: "飞跃集团", city: "上海", netWorth: 420, round: 1, quantity: 220, quality: 35, price: 72, agents: 4, marketing: 45, lastProfit: 20, status: "active", history: [400, 420] },
+            { name: "创新科技", city: "北京", netWorth: 385, round: 1, quantity: 180, quality: 28, price: 68, agents: 3, marketing: 38, lastProfit: -15, status: "active", history: [400, 385] },
+            { name: "西部之星", city: "成都", netWorth: 450, round: 1, quantity: 250, quality: 42, price: 65, agents: 5, marketing: 52, lastProfit: 50, status: "active", history: [400, 450] },
+            { name: "岭南实业", city: "广州", netWorth: 405, round: 1, quantity: 200, quality: 30, price: 70, agents: 3, marketing: 40, lastProfit: 5, status: "active", history: [400, 405] }
+        ];
+        updateUI();
+    }
+    
+    // 启动
     bindEvents();
-    updateUI();
+    initDemoData();
 </script>
 </body>
 </html>
