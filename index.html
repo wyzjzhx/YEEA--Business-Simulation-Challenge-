@@ -1,686 +1,229 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ABS竞争市场模拟 - 商业策略挑战赛【YEEA专属】</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.18.1/dist/av-min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-        }
-        body {
-            background: linear-gradient(145deg, #e9f0f5 0%, #d9e2ec 100%);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .admin-panel{
-            background:#1e2a3e;
-            color:#fff;
-            padding:18px 24px;
-            border-radius:2rem;
-            margin-bottom:24px;
-            display:flex;
-            flex-wrap:wrap;
-            gap:12px;
-            align-items:center;
-            display: none;
-        }
-        .admin-panel.show{
-            display:flex;
-        }
-        .admin-panel button{
-            background:#3b82f6;
-            margin:0;
-            padding:8px 14px;
-            font-size:0.85rem;
-        }
-        .admin-panel button.danger{background:#ef4444;}
-        .admin-login-box{
-            background:#dce4f0;
-            padding:12px 16px;
-            border-radius:1rem;
-            margin-bottom:20px;
-            text-align:center;
-        }
-        .join-box{
-            background:#fff;
-            max-width:600px;
-            margin:0 auto 30px;
-            padding:24px;
-            border-radius:2rem;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
-            text-align:center;
-        }
-        .join-box input,.join-box select{
-            padding:10px 14px;
-            border-radius:20px;
-            border:1px solid #cbd5e1;
-            margin:0 6px;
-        }
-        .join-btn{
-            background:#039855;
-            padding:10px 22px !important;
-        }
-        .join-btn:disabled{background:#999 !important;cursor:not-allowed;}
-        .players-dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            justify-content: center;
-            align-items: flex-start;
-        }
-        .player-card {
-            background: white;
-            border-radius: 2rem;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
-            width: 420px;
-            min-width: 360px;
-            transition: all 0.2s;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .my-card-mark{
-            border:3px solid #3b82f6;
-        }
-        .other-card-disable input,.other-card-disable button{
-            background:#e9ecef !important;
-            cursor:not-allowed !important;
-            opacity:0.65;
-        }
-        .card-header {
-            background: #1e2a3e;
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .company-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .city-badge {
-            background: #ffb347;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #2d2f36;
-        }
-        .networth {
-            background: #2c3e50;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            font-family: monospace;
-        }
-        .stats-grid {
-            padding: 16px 20px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .decision-form {
-            padding: 12px 20px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .form-row label {
-            font-weight: 600;
-            color: #1e293b;
-            width: 110px;
-            font-size: 0.85rem;
-        }
-        input, select {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 20px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-        }
-        button {
-            background: #0f172a;
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 8px;
-            font-size: 1rem;
-        }
-        button:hover {
-            background: #1e3a8a;
-            transform: scale(0.98);
-        }
-        button:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
-        .event-msg {
-            background: #fff7ed;
-            border-left: 5px solid #f97316;
-            margin: 8px 20px;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            color: #7c2d12;
-        }
-        .history-log {
-            max-height: 140px;
-            overflow-y: auto;
-            background: #f1f5f9;
-            margin: 8px 20px 16px;
-            border-radius: 20px;
-            padding: 10px;
-            font-size: 0.7rem;
-            font-family: monospace;
-        }
-        .ranking-global {
-            background: white;
-            border-radius: 2rem;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .ranking-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 16px;
-            color: #0f172a;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
-        .ranking-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .ranking-table th, .ranking-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #334155;
-        }
-        @media (max-width: 860px) {
-            .player-card { width: 100%; }
-        }
-        .badge-profit {
-            color: #10b981;
-        }
-        .badge-loss {
-            color: #ef4444;
-        }
-        .bankrupt-tag{
-            background:#ef4444;
-            color:#fff;
-            padding:3px 8px;
-            border-radius:12px;
-            font-size:0.7rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>企业经营模拟系统【修复稳定版】</title>
+<style>
+*{box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;margin:0;padding:0;}
+body{max-width:1150px;margin:25px auto;padding:0 20px;line-height:1.6;}
+.wrap-box{border:1px solid #d0d7e3;border-radius:8px;padding:18px;margin-bottom:16px;background:#fdfdfd;}
+h3{margin-bottom:12px;color:#222;border-left:4px solid #2774d9;padding-left:8px;}
+input,button{padding:8px 10px;margin:6px 4px;outline:none;border:1px solid #ccc;border-radius:4px;}
+input[type=number]{width:140px;}
+.btn-blue{background:#2578dd;color:#fff;border:1px solid #2578dd;cursor:pointer;}
+.btn-red{background:#e63b3b;color:#fff;border:1px solid #e63b3b;cursor:pointer;}
+.btn-gray{background:#999;color:#fff;border:1px solid #999;cursor:not-allowed;}
+.hide{display:none;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ddd;padding:9px;text-align:center;}
+th{background:#f2f7ff;}
+.tip{color:#666;font-size:14px;margin:6px 0;}
+</style>
 </head>
 <body>
-<div style="text-align: center; background: linear-gradient(135deg, #1e3a5f, #0f2b3d); color: white; padding: 20px; border-radius: 30px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
-    <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: 2px;">🏫 金陵中学河西分校国际部经济学社团</h1>
-    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 0.85rem;">JZHX Youth Economics Empowerment Academy · 商业模拟挑战赛【YEEA专属】</p>
-</div>
+<h2 style="text-align:center;margin-bottom:20px;">企业经营多队共用模拟平台</h2>
 
-<div class="admin-login-box">
-    <input id="adminPwdInput" placeholder="管理员密码" type="password">
-    <button id="unlockAdminBtn">解锁管理员后台</button>
-    <span style="font-size:12px;color:#777">仅管理员可输入查看控制面板</span>
-</div>
-
-<div class="admin-panel">
-    <strong>⚙️ 赛事管理员控制台：</strong>
-    <button id="nextAllRound">统一全部队伍进入下一回合</button>
-    <button class="danger" id="resetAllGame">全盘重置比赛（清空所有数据）</button>
-    <button id="exportCsv">导出排行榜CSV成绩</button>
-    <span>手动修改资产：</span>
-    <select id="editPlayerSel"></select>
-    <input type="number" id="editNetVal" placeholder="输入净资产">
-    <button id="saveEditVal">保存修改</button>
-</div>
-
-<div class="join-box">
-    <h3>📝 队伍自助报名参赛（30队满员截止，一台设备仅能创建1支队伍）</h3>
-    <input id="joinCompany" placeholder="填写公司/队伍名称">
-    <select id="joinCity">
-        <option>上海</option>
-        <option>北京</option>
-        <option>广州</option>
-        <option>成都</option>
-    </select>
-    <button class="join-btn" id="joinGameBtn">立即加入比赛</button>
-    <p style="font-size:0.8rem;color:#666;margin:8px 0;">加入后仅可编辑自己队伍，其他队伍全部锁定无法修改</p>
-</div>
-
-<div class="ranking-global" id="globalRankingPanel">
-    <div class="ranking-title">
-        <span><i class="fas fa-trophy"></i> 实时排行榜 · 六轮模拟最终王者</span>
+<!--管理员区-->
+<div class="wrap-box">
+    <h3>管理员后台管理</h3>
+    <input id="adminPwd" placeholder="输入管理员密码" type="password">
+    <button class="btn-blue" onclick="adminLogin()">登录管理后台</button>
+    <div id="adminPanel" class="hide">
+        <p class="tip">当前全局轮次：<span id="roundText">1</span> / 最大轮次：<span id="maxRoundText">6</span></p>
+        <button class="btn-blue" onclick="nextRound()">开启下一轮经营</button>
+        <button class="btn-red" onclick="resetAll()">一键清空全部比赛数据</button>
     </div>
-    <table class="ranking-table" id="rankingTable">
+</div>
+
+<!--选手操作区-->
+<div class="wrap-box">
+    <h3>队伍注册+本轮经营决策</h3>
+    <input id="teamInput" placeholder="填写队伍/公司名称">
+    <button class="btn-blue" onclick="registerTeam()">注册新队伍</button>
+
+    <div id="operWrap" class="hide">
+        <p class="tip">您已注册成功，当前第 <span id="nowR">1</span> 轮决策</p>
+        <p>项目投入：
+            投资：<input type="number" min="0" id="inp1" value="0">
+            生产：<input type="number" min="0" id="inp2" value="0">
+            营销：<input type="number" min="0" id="inp3" value="0">
+        </p>
+        <button id="subBtn" class="btn-blue" onclick="submitDecision()">提交本轮决策</button>
+    </div>
+</div>
+
+<!--排行榜-->
+<div class="wrap-box">
+    <h3>全队伍资产排行榜（自动同步）</h3>
+    <table>
         <thead>
-            <tr><th>排名</th><th>公司名</th><th>主场城市</th><th>当前净资产(万)</th><th>轮次</th><th>状态</th></tr>
+            <tr>
+                <th>队伍名称</th>
+                <th>剩余现金</th>
+                <th>累计总资产</th>
+                <th>已完成轮次</th>
+            </tr>
         </thead>
-        <tbody id="rankingBody"></tbody>
+        <tbody id="rankBody"></tbody>
     </table>
 </div>
 
-<div class="players-dashboard" id="playersContainer"></div>
-<div class="footer">
-    <i class="fas fa-chart-line"></i>  © 2026 JZHX Youth Economics Empowerment Academy · All Rights Reserved
-</div>
-
 <script>
-AV.init({
-  appId: "q6LdXxFKIGeF4QH34Mk58fH-MdYXbMMI",
-  appKey: "Wj2Kyx2ONa8rQaS41G8o0A4O",
-  serverURL: "https://q6ldxfkf.api.lncldglobal.com"
-});
-
-const START_CAPITAL = 400;
-const MAX_ROUNDS = 6;
-const LOAN_RATE = 0.05;
-const BANKRUPT_LIMIT = -200;
-const MAX_PLAYER = 30;
-const ADMIN_PWD = "yeea26";
-const CITIES = {
-    "上海": { costIndex: 1.0, loanLimitMult: 1.2, marketBase: 1200, prodCostBase: 28 },
-    "北京": { costIndex: 1.05, loanLimitMult: 1.15, marketBase: 1150, prodCostBase: 30 },
-    "广州": { costIndex: 0.92, loanLimitMult: 1.0, marketBase: 1000, prodCostBase: 25 },
-    "成都": { costIndex: 0.85, loanLimitMult: 0.9, marketBase: 900, prodCostBase: 22 }
+//全局配置（可自行修改参数）
+const SETTING = {
+    adminPwd:"yeea26",
+    startMoney:400,
+    maxRound:6,
+    storeKey:"bizSimData"
 };
-const EVENTS = [
-    { name: "🏟️ 国际体育盛会", effectDesc: "整体市场销量 +18%", salesMod: 1.18, qualityMod: 1.0, costMod: 1.0 },
-    { name: "📉 经济下行周期", effectDesc: "市场需求 -15%", salesMod: 0.85, qualityMod: 0.95, costMod: 1.05 },
-    { name: "🎉 消费补贴政策", effectDesc: "营销效果提升 20%", salesMod: 1.10, qualityMod: 1.0, costMod: 0.98 },
-    { name: "⚙️ 原材料涨价", effectDesc: "生产成本+12%", salesMod: 1.0, qualityMod: 0.98, costMod: 1.12 },
-    { name: "🌟 科技突破", effectDesc: "产品质量加成提升", salesMod: 1.05, qualityMod: 1.15, costMod: 1.0 },
-    { name: "🌪️ 黑天鹅事件", effectDesc: "市场整体萎缩22%", salesMod: 0.78, qualityMod: 0.90, costMod: 1.08 },
-    { name: "📱 网红带货潮", effectDesc: "全行业需求小幅上涨", salesMod: 1.08, qualityMod: 1.02, costMod: 0.99 },
-    { name: "📦 物流运费暴跌", effectDesc: "生产成本下降10%", salesMod: 1.0, qualityMod: 1.0, costMod: 0.90 },
-    { name: "🚫 行业抽检严管", effectDesc: "质量投入收益提升，原料小幅涨价", salesMod: 0.96, qualityMod: 1.20, costMod: 1.07 },
-    { name: "📺 热门影视剧植入", effectDesc: "全品类市场热销", salesMod: 1.22, qualityMod: 1.0, costMod: 1.03 },
-    { name: "⛈️ 极端天气减产", effectDesc: "上游原料紧缺成本暴涨", salesMod: 0.92, qualityMod: 1.0, costMod: 1.20 },
-    { name: "💡 新工艺普及", effectDesc: "质量投入性价比变高、成本微降", salesMod: 1.02, qualityMod: 1.18, costMod: 0.94 },
-    { name: "💸 居民消费降级", effectDesc: "市场整体购买力下滑", salesMod: 0.82, qualityMod: 1.05, costMod: 0.97 },
-    { name: "🏭 同行大厂停产", effectDesc: "空余市场份额变多", salesMod: 1.16, qualityMod: 1.0, costMod: 1.01 },
-    { name: "🎁 节日全民促销季", effectDesc: "需求暴涨，但营销投入成本抬升", salesMod: 1.25, qualityMod: 1.0, costMod: 1.09 }
-];
 
-function generateRandomEvent(round) {
-    const idx = Math.floor(Math.random() * EVENTS.length);
-    return { ...EVENTS[idx], round };
+//读取本地存储，无数据自动初始化
+let gameData = JSON.parse(localStorage.getItem(SETTING.storeKey) || JSON.stringify({
+    round:1,
+    teamList:[]
+}));
+
+//保存数据+刷新页面
+function saveAndRefresh(){
+    localStorage.setItem(SETTING.storeKey,JSON.stringify(gameData));
+    refreshPage();
 }
 
-class AIOpponent {
-    constructor(name, city, strategyType) {
-        this.name = name;
-        this.city = city;
-        this.strategy = strategyType;
-        this.history = [];
-        this.netWorth = START_CAPITAL;
-        this.loan = 0;
-        this.round = 0;
-        this.lastProfit = 0;
-    }
-    makeDecision(round, globalEvent){
-        let cash = this.netWorth;
-        let maxLoan = CITIES[this.city].loanLimitMult *300 - this.loan;
-        let loanTake =0;
-        if(cash<80 && maxLoan>0) loanTake = Math.min(120,maxLoan);
-        else if(cash<200 && this.strategy==='aggressive') loanTake = Math.min(80,maxLoan);
-        let quantity,qualityInvest,price,agents,marketing;
-        if(this.strategy==='aggressive'){
-            quantity = 280+Math.floor(Math.random()*120);
-            qualityInvest = Math.min(150,40+8*round);
-            agents = Math.min(12,6+Math.floor(Math.random()*5));
-            marketing = Math.min(180,45+round*4);
-        }else if(this.strategy==='balanced'){
-            quantity = 200+Math.floor(Math.random()*100);
-            qualityInvest = Math.min(150,30+5*round);
-            agents = Math.min(12,3+Math.floor(Math.random()*5));
-            marketing = Math.min(180,30+round*3);
-        }else{
-            quantity = 140+Math.floor(Math.random()*80);
-            qualityInvest = Math.min(150,20+3*round);
-            agents = Math.min(12,1+Math.floor(Math.random()*3));
-            marketing = Math.min(180,18+round*2);
-        }
-        quantity = Math.max(80,Math.min(650,quantity));
-        const baseCostPerUnit = CITIES[this.city].prodCostBase * globalEvent.costMod * CITIES[this.city].costIndex;
-        let suggestPrice = baseCostPerUnit*1.85 + (qualityInvest/Math.max(1,quantity))*2.2;
-        if(this.strategy==='aggressive') suggestPrice *=0.92;
-        if(this.strategy==='conservative') suggestPrice *=1.08;
-        price = Math.max(35,Math.min(140,Math.round(suggestPrice)));
-        return {loan:loanTake,quantity,qualityInvest,price,agents,marketing};
-    }
-    calcRoundProfit(dec,event,allCompetitorAttr,totalMarketPotential){
-        let newLoan = dec.loan;
-        let cityCfg = CITIES[this.city];
-        let loanCap = cityCfg.loanLimitMult*300;
-        if(this.loan+newLoan>loanCap) newLoan = loanCap - this.loan;
-        this.loan += newLoan;
-        let interest = this.loan * LOAN_RATE;
-        let unitProdCost = cityCfg.prodCostBase * event.costMod * cityCfg.costIndex;
-        let prodCost = dec.quantity * unitProdCost;
-        let costTotal = prodCost + dec.qualityInvest + dec.marketing + interest;
-        let PQI = dec.quantity>0 ? dec.qualityInvest/dec.quantity :0;
-        let SPI = dec.marketing*(1+0.1*dec.agents);
-        function attr(pr,pq,sp){
-            let ps = Math.max(0,Math.min(1,(180-pr)/150));
-            let qs = Math.min(1,pq/3.0);
-            let ms = Math.min(1,sp/200);
-            return ps*0.7 + qs*0.15 + ms*0.15;
-        }
-        let myAttr = attr(dec.price,PQI,SPI);
-        let sumAttr = allCompetitorAttr.reduce((s,v)=>s+v,0)+myAttr;
-        let share = sumAttr>0 ? myAttr/sumAttr : 1/(allCompetitorAttr.length+1);
-        let sales = Math.floor(totalMarketPotential*share);
-        sales = Math.min(sales,dec.quantity);
-        let revenue = sales*dec.price;
-        let profit = revenue - costTotal;
-        this.netWorth += profit;
-        this.lastProfit = profit;
-        this.history.push({round:this.round+1,netWorth:this.netWorth});
-        this.round++;
-        return profit;
-    }
-}
+//页面渲染刷新
+function refreshPage(){
+    document.getElementById('roundText').innerText = gameData.round;
+    document.getElementById('maxRoundText').innerText = SETTING.maxRound;
+    document.getElementById('nowR').innerText = gameData.round;
 
-class PlayerSession {
-    constructor(id, companyName, city) {
-        this.id = id;
-        this.companyName = companyName;
-        this.city = city;
-        this.netWorth = START_CAPITAL;
-        this.loan = 0;
-        this.round = 0;
-        this.gameOver = false;
-        this.isBankrupt = false;
-        this.historyNetWorth = [START_CAPITAL];
-        this.decisionsLog = [];
-        this.currentEvent = null;
-        this.lastProfit = 0;
-    }
-    playRound(decision, roundNumber, allAIs){
-        if(this.gameOver || this.round>=MAX_ROUNDS || this.isBankrupt) return {success:false};
-        const event = generateRandomEvent(roundNumber);
-        this.currentEvent = event;
-        const cityCfg = CITIES[this.city];
-        let addLoan = Math.min(decision.loan||0, cityCfg.loanLimitMult*300 - this.loan);
-        this.loan += addLoan;
-        let interest = this.loan * LOAN_RATE;
-        let {quantity,qualityInvest,price,agents,marketing} = decision;
-        quantity = Math.max(30,Math.min(800,quantity));
-        qualityInvest = Math.max(0,Math.min(200,qualityInvest));
-        price = Math.max(30,Math.min(180,price));
-        agents = Math.min(12,Math.max(0,agents));
-        marketing = Math.max(5,Math.min(250,marketing));
-        let unitCost = cityCfg.prodCostBase * event.costMod * cityCfg.costIndex;
-        let totalCost = quantity*unitCost + qualityInvest + marketing + interest;
-        function calcAttr(p, q, s){
-            let ps = Math.max(0,Math.min(1,(180-p)/150));
-            let qs = Math.min(1,q/3);
-            let ss = Math.min(1,s/200);
-            return ps*0.7+qs*0.15+ss*0.15;
-        }
-        let pqi = quantity?qualityInvest/quantity:0;
-        let spi = marketing*(1+agents*0.1);
-        let myAttr = calcAttr(price,pqi,spi);
-        let aiDecs = allAIs.map(a=>a.makeDecision(roundNumber,event));
-        let aiAttrs = aiDecs.map(d=>calcAttr(d.price,d.quantity?d.qualityInvest/d.quantity:0,d.marketing*(1+d.agents*0.1)));
-        let totalAttr = myAttr + aiAttrs.reduce((a,b)=>a+b,0);
-        let market = cityCfg.marketBase * event.salesMod * (0.85+Math.random()*0.3);
-        let sales = Math.floor(market * (myAttr/totalAttr));
-        sales = Math.min(sales,quantity);
-        let profit = sales*price - totalCost;
-        this.netWorth += profit;
-        this.lastProfit = profit;
-        if(this.netWorth <= BANKRUPT_LIMIT){this.isBankrupt=true;this.gameOver=true;}
-        this.historyNetWorth.push(this.netWorth);
-        this.decisionsLog.push({round:roundNumber,profit,netWorth:this.netWorth});
-        this.round++;
-        if(this.round>=MAX_ROUNDS) this.gameOver=true;
-        allAIs.forEach((ai,i)=>ai.calcRoundProfit(aiDecs[i],event,aiAttrs.filter((_,j)=>j!==i),market));
-        return {success:true};
-    }
-    getStatus(){return {company:this.companyName,city:this.city,netWorth:this.netWorth,round:this.round,gameOver:this.gameOver,bankrupt:this.isBankrupt,lastProfit:this.lastProfit};}
-}
-
-let playersMap = new Map();
-let aiOpponentsMap = new Map();
-let nextPlayerId = 1;
-const LOCAL_MY_PLAYER_ID = "MY_CURR_PLAYER_ID";
-const HAS_JOINED_FLAG = "DEVICE_JOINED";
-
-const GameData = AV.Object.extend('GameData');
-
-async function saveToCloud() {
-    const data = {
-        nextId: nextPlayerId,
-        players: Array.from(playersMap.values()),
-        aiMap: Object.fromEntries(aiOpponentsMap)
-    };
-    const query = new AV.Query(GameData);
-    let obj = await query.first();
-    if (!obj) obj = new GameData();
-    obj.set('content', JSON.stringify(data));
-    await obj.save();
-}
-
-async function loadFromCloud() {
-    try {
-        const query = new AV.Query(GameData);
-        const obj = await query.first();
-        if (!obj) return false;
-        const d = JSON.parse(obj.get('content'));
-        nextPlayerId = d.nextId || 1;
-        playersMap.clear();
-        (d.players || []).forEach(p => {
-            const pl = new PlayerSession(p.id, p.companyName, p.city);
-            Object.assign(pl, p);
-            playersMap.set(p.id, pl);
-        });
-        aiOpponentsMap.clear();
-        Object.entries(d.aiMap || {}).forEach(([k, v]) => {
-            aiOpponentsMap.set(Number(k), v.map(a => Object.assign(new AIOpponent(), a)));
-        });
-        return true;
-    } catch (e) { return false; }
-}
-
-function createAIsForPlayer(){
-    return [new AIOpponent("竞速集团","上海","aggressive"),new AIOpponent("平衡实业","广州","balanced"),new AIOpponent("稳健联合","成都","conservative")];
-}
-
-async function createNewPlayer(company,city){
-    if(localStorage.getItem(HAS_JOINED_FLAG)){alert("本设备已报名！");return null;}
-    company=company.trim();
-    if(playersMap.size>=MAX_PLAYER){alert("满员30队！");return null;}
-    if(Array.from(playersMap.values()).some(p=>p.companyName===company)){alert("队名重复！");return null;}
-    let id=nextPlayerId++;
-    let p=new PlayerSession(id,company,city);
-    playersMap.set(id,p);
-    aiOpponentsMap.set(id,createAIsForPlayer());
-    localStorage.setItem(LOCAL_MY_PLAYER_ID,id);
-    localStorage.setItem(HAS_JOINED_FLAG,"1");
-    await saveToCloud();
-    renderAllPlayers();
-    alert("报名成功！");
-    return p;
-}
-
-function renderGlobalRanking(){
-    let list=Array.from(playersMap.values()).sort((a,b)=>b.netWorth-a.netWorth);
-    let b=document.getElementById("rankingBody");
-    b.innerHTML="";
-    let s=document.getElementById("editPlayerSel");
-    s.innerHTML="";
-    list.forEach((p,i)=>{
-        let r=b.insertRow();
-        r.insertCell(0).innerText=i+1;
-        r.insertCell(1).innerText=p.companyName;
-        r.insertCell(2).innerText=p.city;
-        r.insertCell(3).innerHTML=`<strong class="${p.netWorth>=START_CAPITAL?'badge-profit':'badge-loss'}">${p.netWorth.toFixed(1)}万</strong>`;
-        r.insertCell(4).innerText=`${p.round}/${MAX_ROUNDS}`;
-        r.insertCell(5).innerHTML=p.isBankrupt?'<span class="bankrupt-tag">破产</span>':p.gameOver?'🏁完成':'比赛中';
-        let o=document.createElement("option");
-        o.value=p.id;o.innerText=p.companyName;s.appendChild(o);
-    });
-    document.getElementById("joinGameBtn").disabled=playersMap.size>=MAX_PLAYER||!!localStorage.getItem(HAS_JOINED_FLAG);
-}
-
-window.__chartCache={};
-function drawNetWorthChart(pid){
-    let p=playersMap.get(pid);if(!p)return;
-    let c=`chart-${pid}`;
-    let d=document.querySelector(`.player-card[data-id="${pid}"]`);if(!d)return;
-    let w=d.querySelector(`#${c}-wrap`)||document.createElement("div");
-    w.id=`${c}-wrap`;w.style.padding="12px 20px";w.innerHTML=`<canvas id="${c}" width="380" height="150"></canvas>`;
-    d.appendChild(w);
-    if(window.__chartCache[c])window.__chartCache[c].destroy();
-    window.__chartCache[c]=new Chart(document.getElementById(c),{
-        type:"line",
-        data:{labels:p.historyNetWorth.map((_,i)=>`R${i}`),datasets:[{label:"净资产(万)",data:p.historyNetWorth,borderColor:"#3b82f6",tension:0.2,fill:false}]},
-        options:{responsive:true}
-    });
-}
-
-function renderAllPlayers(){
-    let cont=document.getElementById("playersContainer");
-    cont.innerHTML="";
-    let myId=+localStorage.getItem(LOCAL_MY_PLAYER_ID);
-    for(let [pid,p] of playersMap){
-        let card=document.createElement("div");
-        card.className="player-card "+(pid===myId?"my-card-mark":"other-card-disable");
-        card.dataset.id=pid;
-        let evt=p.currentEvent?`<div class="event-msg">本轮：${p.currentEvent.name}（${p.currentEvent.effectDesc}）</div>`:"";
-        let dis=pid!==myId||p.gameOver||p.isBankrupt?"disabled":"";
-        let tip=p.isBankrupt?"<div style='color:red;padding:0 20px'>⚠️已破产</div>":"";
-        let log=p.decisionsLog.slice(-2).map(l=>`R${l.round}:${l.profit>0?"+":""}${l.profit.toFixed(0)}`).join("|")||"未开始";
-        card.innerHTML=`
-            <div class="card-header">
-                <span class="company-name">🏢${p.companyName}</span>
-                <span class="city-badge">${p.city}</span>
-                <span class="networth">${p.netWorth.toFixed(1)}万</span>
-            </div>
-            <div class="stats-grid">
-                <span>轮次 ${p.round}/${MAX_ROUNDS}</span>
-                <span>上轮利润：${p.lastProfit.toFixed(1)}万</span>
-            </div>
-            ${evt}${tip}
-            <div class="decision-form">
-                <div class="form-row"><label>产量</label><input ${dis} type="number" value="220" min="30" max="800"></div>
-                <div class="form-row"><label>质量</label><input ${dis} type="number" value="28" min="0" max="200"></div>
-                <div class="form-row"><label>定价</label><input ${dis} type="number" value="68" min="30" max="180"></div>
-                <div class="form-row"><label>代理</label><input ${dis} type="number" value="3" min="0" max="12"></div>
-                <div class="form-row"><label>营销</label><input ${dis} type="number" value="38" min="5" max="250"></div>
-                <div class="form-row"><label>贷款</label><input ${dis} type="number" value="0" min="0" max="300"></div>
-                <button ${dis}>提交第${p.round+1}轮</button>
-            </div>
-            <div class="history-log">${log}</div>
+    //渲染排行榜
+    let rankDom = document.getElementById('rankBody');
+    rankDom.innerHTML = "";
+    //资产降序排序
+    let sortArr = [...gameData.teamList].sort((a,b)=>b.totalAsset - a.totalAsset);
+    sortArr.forEach(item=>{
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.cash}</td>
+            <td>${item.totalAsset}</td>
+            <td>${item.finishRound}/${SETTING.maxRound}</td>
         `;
-        cont.appendChild(card);
-        let inputs=card.querySelectorAll("input");
-        let btn=card.querySelector("button");
-        if(pid===myId&&!p.gameOver&&!p.isBankrupt){
-            btn.onclick=async ()=>{
-                if(!confirm("确认提交？"))return;
-                let d={quantity:+inputs[0].value,qualityInvest:+inputs[1].value,price:+inputs[2].value,agents:+inputs[3].value,marketing:+inputs[4].value,loan:+inputs[5].value};
-                let r=p.playRound(d,p.round+1,aiOpponentsMap.get(pid));
-                if(r.success){await saveToCloud();renderAllPlayers();drawNetWorthChart(pid);}
-            };
-        }
-        drawNetWorthChart(pid);
+        rankDom.appendChild(tr);
+    })
+}
+
+//跨标签同步：其他页面修改数据自动刷新本页面
+window.addEventListener('storage',e=>{
+    if(e.key === SETTING.storeKey){
+        gameData = JSON.parse(e.newValue);
+        refreshPage();
     }
-    renderGlobalRanking();
+})
+
+//管理员登录
+function adminLogin(){
+    let pwd = document.getElementById('adminPwd').value.trim();
+    if(pwd === SETTING.adminPwd){
+        document.getElementById('adminPanel').classList.remove('hide');
+        alert("管理员登录成功！");
+    }else{
+        alert("密码错误！");
+    }
 }
 
-function exportCSV(){
-    let list=Array.from(playersMap.values()).sort((a,b)=>b.netWorth-a.netWorth);
-    let t="排名,公司,城市,净资产,轮次,状态\n";
-    list.forEach((p,i)=>t+=`${i+1},${p.companyName},${p.city},${p.netWorth.toFixed(2)},${p.round}/${MAX_ROUNDS},${p.isBankrupt?"破产":p.gameOver?"完赛":"进行中"}\n`);
-    let blob=new Blob([t],{type:"text/csv;charset=utf-8"});
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="成绩.csv";
-    a.click();
+//队伍注册
+function registerTeam(){
+    let name = document.getElementById('teamInput').value.trim();
+    if(!name){
+        alert("请输入队伍名称！");
+        return;
+    }
+    //判断队伍是否已存在
+    let exist = gameData.teamList.find(item=>item.name === name);
+    if(exist){
+        alert("该队伍名称已注册，请勿重复注册！");
+        return;
+    }
+    //新增队伍
+    gameData.teamList.push({
+        name:name,
+        cash:SETTING.startMoney,
+        totalAsset:SETTING.startMoney,
+        finishRound:0
+    })
+    saveAndRefresh();
+    document.getElementById('operWrap').classList.remove('hide');
+    alert(`${name}注册完成！`);
 }
 
-function bindAdminEvent(){
-    document.getElementById("unlockAdminBtn").onclick=()=>{
-        if(document.getElementById("adminPwdInput").value===ADMIN_PWD){
-            document.querySelector(".admin-panel").classList.add("show");
-            alert("管理员已解锁");
-        }else alert("密码错误");
-    };
-    document.getElementById("joinGameBtn").onclick=()=>{
-        let n=document.getElementById("joinCompany").value.trim();
-        let c=document.getElementById("joinCity").value;
-        if(!n){alert("请填队名");return;}
-        createNewPlayer(n,c);
-        document.getElementById("joinCompany").value="";
-    };
-    document.getElementById("nextAllRound").onclick=async ()=>{
-        await saveToCloud();renderAllPlayers();
-    };
-    document.getElementById("resetAllGame").onclick=async ()=>{
-        if(!confirm("清空所有数据？"))return;
-        const query=new AV.Query(GameData);
-        const obj=await query.first();
-        if(obj) await obj.destroy();
-        playersMap.clear();aiOpponentsMap.clear();nextPlayerId=1;
-        localStorage.clear();
-        renderAllPlayers();
-    };
-    document.getElementById("exportCsv").onclick=exportCSV;
-    document.getElementById("saveEditVal").onclick=async ()=>{
-        let id=+document.getElementById("editPlayerSel").value;
-        let v=+document.getElementById("editNetVal").value;
-        if(isNaN(v))return;
-        let p=playersMap.get(id);if(!p)return;
-        p.netWorth=v;
-        await saveToCloud();
-        renderAllPlayers();
-        alert("已修改");
-    };
+//提交决策（修复重复提交、资金超限BUG）
+function submitDecision(){
+    let teamName = document.getElementById('teamInput').value.trim();
+    let teamInfo = gameData.teamList.find(i=>i.name === teamName);
+    if(!teamInfo){
+        alert("请先注册队伍！");
+        return;
+    }
+    //判断本轮是否已经提交
+    if(teamInfo.finishRound >= gameData.round){
+        alert("本轮已提交决策，不可重复提交！等待管理员开启下一轮");
+        return;
+    }
+
+    let inv = Number(document.getElementById('inp1').value||0);
+    let pro = Number(document.getElementById('inp2').value||0);
+    let mar = Number(document.getElementById('inp3').value||0);
+    let totalCost = inv + pro + mar;
+
+    //投入不能大于现有现金
+    if(totalCost > teamInfo.cash){
+        alert(`投入总额${totalCost}超过现有现金${teamInfo.cash}，无法提交！`);
+        return;
+    }
+
+    //收益公式（浮动随机）
+    let profit = Math.floor((inv*0.3+pro*0.4+mar*0.2)*(1+Math.random()*0.22));
+    //资金变动
+    teamInfo.cash = teamInfo.cash - totalCost + profit;
+    teamInfo.totalAsset += profit;
+    teamInfo.finishRound = gameData.round;
+
+    //提交后按钮置灰禁止重复点击
+    let subBtn = document.getElementById('subBtn');
+    subBtn.innerText = "已提交";
+    subBtn.className = "btn-gray";
+    subBtn.disabled = true;
+
+    saveAndRefresh();
+    alert(`提交成功！本轮盈利：${profit}，剩余现金：${teamInfo.cash}`);
 }
 
-(async ()=>{
-    await loadFromCloud();
-    bindAdminEvent();
-    renderAllPlayers();
-})();
+//管理员切换轮次
+function nextRound(){
+    if(gameData.round >= SETTING.maxRound){
+        alert("已达到最大轮次，比赛结束！");
+        return;
+    }
+    gameData.round++;
+    saveAndRefresh();
+    alert(`成功开启第${gameData.round}轮！所有队伍可开始新一轮决策`);
+}
+
+//清空全部数据
+function resetAll(){
+    if(!confirm("确认清空所有队伍数据，数据无法恢复！")) return;
+    gameData = {round:1,teamList:[]};
+    saveAndRefresh();
+    document.getElementById('operWrap').classList.add('hide');
+    document.getElementById('subBtn').innerText = "提交本轮决策";
+    document.getElementById('subBtn').className = "btn-blue";
+    document.getElementById('subBtn').disabled = false;
+    alert("全部数据重置完毕！");
+}
+
+//页面初始化渲染
+refreshPage();
 </script>
 </body>
 </html>
