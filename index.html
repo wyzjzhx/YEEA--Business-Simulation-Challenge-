@@ -3,272 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ABS商业模拟赛 - 表格填写版 | YEEA</title>
+    <title>ABS商业模拟赛 - 城市背景策略版 | YEEA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: linear-gradient(145deg, #e9f0f5 0%, #d9e2ec 100%); margin: 0; padding: 20px; min-height: 100vh; }
-        
-        /* 头部样式 */
         .header { background: linear-gradient(135deg, #1e3a5f, #0f2b3d); color: white; padding: 20px; border-radius: 30px; margin-bottom: 20px; text-align: center; }
-        
-        /* 学生入口卡片 - 绿色醒目 */
-        .student-card { background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 30px; padding: 25px; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .student-card a { color: #fef08a; font-weight: bold; font-size: 1.1rem; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 50px; display: inline-block; margin-top: 10px; text-decoration: none; }
-        .student-card a:hover { background: rgba(0,0,0,0.3); }
-        
-        /* 教师控制台 */
-        .teacher-panel { background: white; border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        
-        /* 手动粘贴区域 */
-        .paste-area { background: #fef3c7; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 2px solid #f59e0b; }
-        .paste-area textarea { width: 100%; padding: 15px; border-radius: 16px; border: 1px solid #f59e0b; font-family: monospace; font-size: 13px; background: white; }
-        
-        /* 按钮样式 */
-        .btn { border: none; padding: 10px 22px; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .event-card { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 30px; padding: 20px; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .event-desc { font-size: 1.2rem; margin: 10px 0; }
+        .event-effect { background: rgba(0,0,0,0.2); border-radius: 30px; padding: 8px 16px; display: inline-block; margin-top: 8px; }
+        .city-info { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: center; }
+        .city-card { background: white; border-radius: 20px; padding: 15px; width: 220px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .city-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .city-card.selected { border: 3px solid #3b82f6; background: #eff6ff; }
+        .city-name { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; }
+        .city-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+        .city-desc { font-size: 0.65rem; color: #64748b; margin-top: 8px; line-height: 1.4; }
+        .student-card { background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 30px; padding: 25px; margin-bottom: 25px; text-align: center; }
+        .student-card a { color: #fef08a; font-weight: bold; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 50px; display: inline-block; text-decoration: none; }
+        .teacher-panel { background: white; border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; }
+        .paste-area { background: #fef3c7; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 2px solid #f59e0b; display: none; }
+        .paste-area textarea { width: 100%; padding: 15px; border-radius: 16px; font-family: monospace; background: white; }
+        .btn { border: none; padding: 10px 22px; border-radius: 40px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: #3370ff; color: white; }
         .btn-success { background: #10b981; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
-        .btn-purple { background: #8b5cf6; color: white; }
-        .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
-        
-        /* 排行榜 */
         .ranking-global { background: white; border-radius: 2rem; padding: 20px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .ranking-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 16px; display: flex; justify-content: space-between; flex-wrap: wrap; }
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th, .ranking-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        
-        /* 队伍卡片 */
         .players-dashboard { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
-        .player-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; overflow: hidden; }
-        .card-header { background: #1e2a3e; color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+        .player-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 440px; overflow: hidden; }
+        .card-header { background: #1e2a3e; color: white; padding: 14px 18px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
         .company-name { font-size: 1.2rem; font-weight: bold; }
-        .city-badge { background: #ffb347; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; color: #2d2f36; }
-        .networth { background: #2c3e50; padding: 6px 14px; border-radius: 30px; font-family: monospace; font-size: 0.9rem; }
-        .stats-grid { padding: 12px 18px; background: #f8fafc; display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; }
-        .decisions-preview { padding: 12px 18px; background: #f1f5f9; font-size: 0.75rem; }
-        .decisions-preview span { display: inline-block; margin-right: 15px; margin-bottom: 5px; }
+        .city-badge { background: #ffb347; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
+        .networth { background: #2c3e50; padding: 6px 14px; border-radius: 30px; font-family: monospace; }
+        .stats-grid { padding: 12px 18px; background: #f8fafc; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; }
+        .round-history { padding: 12px 18px; background: #f1f5f9; font-size: 0.7rem; max-height: 120px; overflow-y: auto; }
+        .round-history span { display: inline-block; background: #e2e8f0; padding: 2px 8px; border-radius: 20px; margin: 2px; }
         .badge-profit { color: #10b981; font-weight: bold; }
         .badge-loss { color: #ef4444; font-weight: bold; }
         .status-bankrupt { background: #ef4444; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
         .status-active { background: #10b981; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
         .status-done { background: #3b82f6; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; }
-        
         .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 0.75rem; }
-        .example-table { background: #f8fafc; border-radius: 16px; padding: 15px; margin-top: 15px; font-size: 0.75rem; overflow-x: auto; }
-        .example-table table { width: 100%; border-collapse: collapse; }
-        .example-table td { padding: 8px; border: 1px solid #cbd5e1; }
-        button:hover { transform: scale(0.97); opacity: 0.9; }
         .sync-status { display: inline-flex; align-items: center; gap: 8px; background: #e2e8f0; padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; margin-bottom: 15px; }
-        @media (max-width: 860px) { .player-card { width: 100%; } }
+        .empty-hint { text-align: center; padding: 60px; color: #94a3b8; }
+        button:hover { transform: scale(0.97); opacity: 0.9; }
+        .round-badge { background: #1e293b; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.8rem; }
+        .note { background: #f1f5f9; border-radius: 16px; padding: 12px; margin-top: 15px; font-size: 0.7rem; text-align: left; }
+        .city-strategy { font-size: 0.65rem; color: #3b82f6; margin-top: 5px; }
+        @media (max-width: 860px) { .player-card { width: 100%; } .city-card { width: 180px; } }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1>🏫 金陵中学河西分校国际部经济学社团</h1>
-    <p>ABS商业模拟挑战赛 · 腾讯文档/石墨表格填写版</p>
-    <p style="font-size:0.8rem;"><i class="fas fa-mobile-alt"></i> 学生填表格 → 教师粘贴数据 → Web自动计算</p>
+    <p>ABS商业模拟挑战赛 · 城市背景策略版</p>
+    <p style="font-size:0.8rem;">固定商品：👟 运动鞋 | 每个城市有独特产业背景 | 60种随机经济事件</p>
 </div>
 
-<!-- ========= 学生入口（醒目绿色卡片） ========= -->
+<!-- 城市背景展示 -->
+<div class="city-info" id="cityInfoContainer">
+    <!-- 动态生成城市卡片 -->
+</div>
+
+<!-- 当前事件展示 -->
+<div class="event-card" id="eventCard">
+    <h2><i class="fas fa-dice-d6"></i> 第 <span id="eventRound">1</span> 轮 · 市场事件</h2>
+    <div class="event-desc" id="eventName">点击「推进至下一轮」开始</div>
+    <div class="event-effect" id="eventEffect">等待开始...</div>
+</div>
+
+<!-- 学生入口 -->
 <div class="student-card">
-    <i class="fas fa-file-excel" style="font-size: 2.5rem;"></i>
-    <h2>📝 学生决策填写入口</h2>
-    <p>👇 点击下方链接，打开表格填写本轮决策</p>
-    <a id="sheetDocLink" href="#" target="_blank">加载中...</a>
-    <div style="margin-top: 15px;">
-        <button id="copyLinkBtn" class="btn" style="background: rgba(255,255,255,0.2);"><i class="fas fa-copy"></i> 复制链接发班级群</button>
-    </div>
-    
-    <!-- 表头说明 -->
-    <div style="margin-top: 20px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 15px; text-align: left;">
-        <strong>📌 表格填写说明（第一行是表头，不要改）：</strong>
-        <div class="example-table" style="background: rgba(255,255,255,0.1); margin-top: 10px;">
-            <table style="color: white;">
-                <thead><tr style="background: rgba(0,0,0,0.2);"><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
-                <tr><th>队伍名称</th><th>城市</th><th>生产数量</th><th>质量投资</th><th>定价</th><th>代理商数</th><th>营销支出</th></tr></thead>
-                <tbody>
-                    <tr><td>飞跃集团</td><td>上海</td><td>220</td><td>35</td><td>72</td><td>4</td><td>45</td></tr>
-                    <tr><td>创新科技</td><td>北京</td><td>180</td><td>28</td><td>68</td><td>3</td><td>38</td></tr>
-                    <tr><td>西部之星</td><td>成都</td><td>250</td><td>42</td><td>65</td><td>5</td><td>52</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p style="margin-top: 10px; font-size: 0.7rem;">💡 城市只能填：上海、北京、广州、成都</p>
+    <i class="fas fa-file-excel" style="font-size: 2rem;"></i>
+    <h3>📝 学生决策填写入口</h3>
+    <p>固定商品：<strong><i class="fas fa-shoe-prints"></i> 运动鞋</strong> | 结合<strong>城市背景</strong>和<strong>当前事件</strong>制定策略</p>
+    <a id="sheetDocLink" href="#" target="_blank">请先配置表格链接</a>
+    <button id="copyLinkBtn" class="btn" style="background: rgba(255,255,255,0.2); margin-top: 10px;"><i class="fas fa-copy"></i> 复制链接</button>
+    <div class="note" style="background: rgba(255,255,255,0.15); margin-top: 15px;">
+        <strong>📌 表格格式（学生只需填写）：</strong><br>
+        队伍名称 | 城市 | 生产数量(双) | 质量投资(万) | 定价(元/双) | 代理商数(人)<br>
+        <span style="font-size:0.65rem;">💡 营销支出由系统根据定价自动计算 | 选择城市后查看该城市背景优势</span>
     </div>
 </div>
 
-<!-- ========= 教师控制台 ========= -->
+<!-- 教师控制台 -->
 <div class="teacher-panel">
     <strong><i class="fas fa-chalkboard-teacher"></i> 教师控制台：</strong>
-    <button id="showPasteBtn" class="btn btn-primary"><i class="fas fa-table"></i> 📋 从表格粘贴数据</button>
-    <button id="advanceRoundBtn" class="btn btn-success"><i class="fas fa-forward"></i> ⏩ 推进至下一轮</button>
+    <button id="showPasteBtn" class="btn btn-primary"><i class="fas fa-table"></i> 📋 粘贴本轮决策</button>
+    <button id="nextRoundBtn" class="btn btn-success"><i class="fas fa-forward"></i> ⏩ 推进至下一轮</button>
     <button id="resetGameBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 🔄 重置比赛</button>
-    <button id="exportCsvBtn" class="btn btn-warning"><i class="fas fa-download"></i> 📎 导出排行榜</button>
-    <span>🏆 当前轮次: <strong id="currentRoundSpan">1</strong> / 6</span>
+    <button id="exportCsvBtn" class="btn btn-warning"><i class="fas fa-download"></i> 📎 导出数据</button>
+    <span class="round-badge">🏆 当前轮次: <strong id="currentRoundSpan">0</strong> / 6</span>
 </div>
 
-<!-- ========= 粘贴数据区域（核心） ========= -->
-<div id="pasteArea" class="paste-area" style="display: none;">
-    <h3><i class="fas fa-paste"></i> 从表格粘贴数据</h3>
-    <p>1. 在腾讯文档/石墨表格中选中数据区域（包含表头）→ 2. 按 Ctrl+C 复制 → 3. 粘贴到下方框内</p>
-    <textarea id="pasteData" rows="6" placeholder="粘贴表格数据示例：
-队伍名称	城市	生产数量	质量投资	定价	代理商数	营销支出
-飞跃集团	上海	220	35	72	4	45
-创新科技	北京	180	28	68	3	38
-西部之星	成都	250	42	65	5	52
-岭南实业	广州	200	30	70	3	40"></textarea>
+<!-- 粘贴区域 -->
+<div id="pasteArea" class="paste-area">
+    <h3><i class="fas fa-paste"></i> 粘贴第 <span id="pasteRoundNum">1</span> 轮学生决策</h3>
+    <p style="font-size:0.8rem;">粘贴格式：队伍名称、城市、生产数量、质量投资、定价、代理商数</p>
+    <textarea id="pasteData" rows="6" placeholder="队伍名称	城市	生产数量(双)	质量投资(万)	定价(元/双)	代理商数(人)
+飞跃体育	上海	22000	35	72	4
+创新运动	北京	18000	28	68	3
+西部鞋业	成都	25000	42	65	5
+岭南鞋厂	广州	20000	30	70	3"></textarea>
     <div style="display: flex; gap: 12px; justify-content: center; margin-top: 15px;">
-        <button id="confirmPasteBtn" class="btn btn-success"><i class="fas fa-check"></i> 确认导入并计算</button>
+        <button id="confirmPasteBtn" class="btn btn-success"><i class="fas fa-calculator"></i> 计算并累加利润</button>
         <button id="cancelPasteBtn" class="btn" style="background:#94a3b8;"><i class="fas fa-times"></i> 取消</button>
     </div>
 </div>
 
-<!-- 同步状态 -->
+<!-- 状态栏 -->
 <div style="text-align: center; margin-bottom: 15px;">
     <div class="sync-status">
-        <i class="fas fa-cloud-upload-alt" id="syncIcon" style="color:#10b981;"></i>
-        <span id="syncStatusText">等待导入数据</span>
-        <span id="lastUpdateTime"></span>
+        <i class="fas fa-info-circle"></i>
+        <span id="statusText">等待开始游戏</span>
     </div>
 </div>
 
-<!-- ========= 排行榜 ========= -->
+<!-- 排行榜 -->
 <div class="ranking-global">
     <div class="ranking-title">
-        <span><i class="fas fa-trophy" style="color:#f59e0b;"></i> 🏆 实时排行榜</span>
-        <span>📊 参赛队伍: <span id="teamCount">0</span> 支</span>
+        <span><i class="fas fa-trophy"></i> 🏆 累计净资产排行榜</span>
+        <span>📊 队伍: <span id="teamCount">0</span> 支</span>
     </div>
-    <div style="overflow-x: auto;">
-        <table class="ranking-table">
-            <thead>
-                <tr style="background:#f1f5f9;">
-                    <th>🏅排名</th><th>🏢队伍名称</th><th>📍城市</th><th>💰净资产(万)</th><th>🎯轮次</th><th>📊状态</th><th>📈上轮利润</th>
-                </tr>
-            </thead>
-            <tbody id="rankingBody"></tbody>
-        </table>
-    </div>
+    <table class="ranking-table">
+        <thead><tr><th>排名</th><th>队伍</th><th>城市</th><th>累计净资产(万)</th><th>已完成轮次</th><th>状态</th><th>上轮利润(万)</th></tr></thead>
+        <tbody id="rankingBody"><tr><td colspan="7">暂无数据</td></tr></tbody>
+    </table>
 </div>
 
-<!-- ========= 队伍卡片展示 ========= -->
+<!-- 队伍卡片 -->
 <div class="players-dashboard" id="playersContainer"></div>
 
 <div class="footer">
-    <i class="fas fa-chart-line"></i> 使用流程：学生填表格 → 教师复制表格数据 → 点击"从表格粘贴数据" → 粘贴 → 确认导入 → Web自动计算
-    <br>💡 每轮结束后点击"推进至下一轮"，学生填写新一轮数据，教师重新粘贴导入
+    <i class="fas fa-chart-line"></i> 策略提示：上海适合高端路线、北京适合品牌营销、广州成本优势、成都创新性价比<br>
+    营销支出自动计算 = 定价 × 0.8 × 生产规模系数 | 60种随机经济事件
 </div>
 
 <script>
-    // ==================== 配置区域 ====================
-    // 请替换为您自己创建的腾讯文档或石墨表格链接！
-    // =================================================
+    // ==================== 配置 ====================
+    const TENCENT_DOC_URL = "https://docs.qq.com/sheet/DYUdiRFJHWFZkeEJ5?tab=BB08J2";  // 替换为您的链接
     
-    // 方式1：腾讯文档（推荐国内用户）
-    const TENCENT_DOC_URL = "https://docs.qq.com/sheet/DYUdiRFJHWFZkeEJ5?tab=BB08J2";  // 👈 替换为您的腾讯文档链接
-    
-    // 方式2：石墨文档（备选）
-    const SHIMO_DOC_URL = "https://shimo.im/sheets/xxxxxxxxxxx/";     // 👈 替换为您的石墨文档链接
-    
-    // 自动选择已配置的链接
-    let docUrl = "";
-    if (TENCENT_DOC_URL !== "https://docs.qq.com/sheet/xxxxxxxxxxx") {
-        docUrl = TENCENT_DOC_URL;
-    } else if (SHIMO_DOC_URL !== "https://shimo.im/sheets/xxxxxxxxxxx/") {
-        docUrl = SHIMO_DOC_URL;
+    const linkEl = document.getElementById("sheetDocLink");
+    if (TENCENT_DOC_URL && TENCENT_DOC_URL.includes("docs.qq.com")) {
+        linkEl.href = TENCENT_DOC_URL;
+        linkEl.innerText = TENCENT_DOC_URL;
     } else {
-        docUrl = "https://docs.qq.com/";  // 默认地址，提示用户替换
+        linkEl.innerHTML = "⚠️ 请先创建腾讯文档表格，并替换代码中的链接";
     }
-    
-    // 显示文档链接
-    const linkElement = document.getElementById("sheetDocLink");
-    if (docUrl && docUrl !== "https://docs.qq.com/") {
-        linkElement.href = docUrl;
-        linkElement.innerText = docUrl;
-    } else {
-        linkElement.innerHTML = "⚠️ 请先创建腾讯文档/石墨表格，并替换代码中的链接";
-        linkElement.href = "#";
-    }
-    
-    // 复制链接
     document.getElementById("copyLinkBtn").onclick = () => {
-        if (docUrl && docUrl !== "https://docs.qq.com/") {
-            navigator.clipboard.writeText(docUrl);
-            alert("✅ 链接已复制，可以发到班级群让学生填写");
-
-            alert("⚠️ 请先替换代码中的表格链接");
+        if (TENCENT_DOC_URL.includes("docs.qq.com")) {
+            navigator.clipboard.writeText(TENCENT_DOC_URL);
+            alert("✅ 链接已复制");
+        } else alert("⚠️ 请先替换代码中的表格链接");
+    };
+    
+    // ==================== 城市背景数据库 ====================
+    const CITIES_DB = {
+        "上海": {
+            name: "上海",
+            tag: "🌆 国际时尚之都",
+            color: "#3b82f6",
+            desc: "中国最大的经济中心，时尚潮流发源地，消费者追求品质与品牌",
+            advantage: "✅ 优势：品牌溢价高，消费者愿意为高端运动鞋支付更高价格",
+            disadvantage: "⚠️ 劣势：生产成本高，人力成本贵",
+            strategy: "💡 策略建议：定位高端市场，注重品牌形象和产品质量，定价可偏高",
+            costIndex: 1.08,
+            marketBase: 1350,
+            prodCostBase: 48,
+            qualityBonus: 1.10,
+            priceBonus: 1.12
+        },
+        "北京": {
+            name: "北京",
+            tag: "🏛️ 政治文化中心",
+            color: "#ef4444",
+            desc: "首都城市，体育氛围浓厚，大型赛事举办地，全民健身意识强",
+            advantage: "✅ 优势：体育营销效果好，政府项目支持多，品牌曝光机会多",
+            disadvantage: "⚠️ 劣势：环保要求严格，生产限制较多",
+            strategy: "💡 策略建议：借势体育赛事营销，注重环保概念，与政府体育项目合作",
+            costIndex: 1.05,
+            marketBase: 1300,
+            prodCostBase: 47,
+            qualityBonus: 1.05,
+            priceBonus: 1.05
+        },
+        "广州": {
+            name: "广州",
+            tag: "🏭 制造业之都",
+            color: "#10b981",
+            desc: "中国鞋业制造中心，拥有完整的供应链和产业集群",
+            advantage: "✅ 优势：生产成本低，供应链完善，原材料采购方便",
+            disadvantage: "⚠️ 劣势：品牌溢价能力弱，同质化竞争激烈",
+            strategy: "💡 策略建议：主打性价比，规模化生产降低成本，薄利多销",
+            costIndex: 0.90,
+            marketBase: 1150,
+            prodCostBase: 38,
+            qualityBonus: 0.95,
+            priceBonus: 0.92
+        },
+        "成都": {
+            name: "成都",
+            tag: "🎋 西部消费中心",
+            color: "#8b5cf6",
+            desc: "新一线城市领头羊，年轻消费群体活跃，休闲文化浓厚",
+            advantage: "✅ 优势：年轻人口红利，消费潜力大，网红经济发达",
+            disadvantage: "⚠️ 劣势：产业配套不如沿海，物流成本较高",
+            strategy: "💡 策略建议：瞄准年轻客群，注重设计感与社交属性，利用网红带货",
+            costIndex: 0.88,
+            marketBase: 1100,
+            prodCostBase: 36,
+            qualityBonus: 1.02,
+            priceBonus: 0.98
         }
     };
     
-    // ==================== 游戏常量 ====================
+    // 渲染城市卡片
+    function renderCityCards() {
+        const container = document.getElementById("cityInfoContainer");
+        container.innerHTML = "";
+        for (let [cityName, city] of Object.entries(CITIES_DB)) {
+            const card = document.createElement("div");
+            card.className = "city-card";
+            card.innerHTML = `
+                <div class="city-name">${city.name}</div>
+                <div class="city-tag" style="background:${city.color}20; color:${city.color};">${city.tag}</div>
+                <div class="city-desc">${city.desc}</div>
+                <div class="city-strategy">${city.strategy.substring(0, 35)}...</div>
+            `;
+            container.appendChild(card);
+        }
+    }
+    
+    // ==================== 60个随机经济事件（带策略提示） ====================
+    const EVENTS = [
+        { name: "🏟️ 国际体育盛会", desc: "北京/上海举办大型体育赛事，运动鞋需求暴涨", salesMod: 1.35, costMod: 1.02, qualityMod: 1.0, hint: "北京、上海城市优势凸显" },
+        { name: "🎉 消费补贴政策", desc: "政府发放体育消费券", salesMod: 1.18, costMod: 0.98, qualityMod: 1.0, hint: "各城市均受益" },
+        { name: "📱 网红带货潮", desc: "成都网红经济爆发，运动鞋直播带货火爆", salesMod: 1.28, costMod: 0.99, qualityMod: 1.05, hint: "成都优势明显" },
+        { name: "🏃 全民健身热潮", desc: "健身意识增强，运动鞋需求大增", salesMod: 1.22, costMod: 1.0, qualityMod: 1.02, hint: "北京体育氛围优势" },
+        { name: "🎁 双十一促销季", desc: "电商大促，运动鞋销量激增", salesMod: 1.35, costMod: 1.09, qualityMod: 1.0, hint: "各城市均受益，广州供应链优势" },
+        { name: "📊 消费升级", desc: "消费者追求高品质运动鞋", salesMod: 1.15, costMod: 1.0, qualityMod: 1.12, hint: "上海高端路线优势" },
+        { name: "🏦 央行降息", desc: "企业融资成本降低", salesMod: 1.08, costMod: 0.96, qualityMod: 1.0, hint: "各城市均受益" },
+        { name: "🤖 AI设计技术", desc: "设计效率大增", salesMod: 1.10, costMod: 0.94, qualityMod: 1.15, hint: "各城市均受益" },
+        { name: "🏆 奥运会效应", desc: "运动品牌关注度飙升", salesMod: 1.32, costMod: 1.05, qualityMod: 1.05, hint: "北京体育优势凸显" },
+        { name: "💎 国潮兴起", desc: "国货运动鞋受追捧", salesMod: 1.18, costMod: 1.0, qualityMod: 1.08, hint: "各城市均受益" },
+        { name: "📉 经济下行", desc: "消费者减少非必要支出", salesMod: 0.82, costMod: 1.0, qualityMod: 0.95, hint: "广州性价比路线有优势" },
+        { name: "⚙️ 原材料涨价", desc: "橡胶/布料价格上涨", salesMod: 0.98, costMod: 1.12, qualityMod: 1.0, hint: "广州供应链优势可对冲" },
+        { name: "🌪️ 供应链危机", desc: "运动鞋供应受阻", salesMod: 0.78, costMod: 1.10, qualityMod: 0.92, hint: "广州制造中心受影响较小" },
+        { name: "💸 消费降级", desc: "转向性价比运动鞋", salesMod: 0.85, costMod: 0.96, qualityMod: 1.02, hint: "广州、成都性价比优势" },
+        { name: "⚡ 能源危机", desc: "生产成本暴涨", salesMod: 0.88, costMod: 1.28, qualityMod: 0.96, hint: "广州生产成本相对较低" },
+        { name: "🔒 贸易壁垒", desc: "出口受阻", salesMod: 0.85, costMod: 1.08, qualityMod: 0.98, hint: "内需为主城市受影响小" },
+        { name: "🏦 央行加息", desc: "融资成本上升", salesMod: 0.95, costMod: 1.08, qualityMod: 1.0, hint: "各城市均受影响" },
+        { name: "📉 股市暴跌", desc: "居民财富缩水", salesMod: 0.88, costMod: 1.02, qualityMod: 0.98, hint: "各城市均受影响" },
+        { name: "🌿 环保新规", desc: "生产标准提高", salesMod: 0.96, costMod: 1.15, qualityMod: 1.12, hint: "北京环保标准高影响较大" },
+        { name: "🚫 质量抽检", desc: "质量门槛提高", salesMod: 0.95, costMod: 1.07, qualityMod: 1.22, hint: "上海品质路线优势" },
+        { name: "💰 减税政策", desc: "企业负担减轻", salesMod: 1.08, costMod: 0.94, qualityMod: 1.0, hint: "各城市均受益" },
+        { name: "💡 创新奖励", desc: "研发投入效益提升", salesMod: 1.10, costMod: 0.95, qualityMod: 1.15, hint: "上海创新优势" },
+        { name: "🌟 科技突破", desc: "新材料应用", salesMod: 1.08, costMod: 1.0, qualityMod: 1.20, hint: "各城市均受益" },
+        { name: "🔬 缓震新材料", desc: "运动鞋性能提升", salesMod: 1.10, costMod: 0.92, qualityMod: 1.18, hint: "各城市均受益" },
+        { name: "🏭 竞品停产", desc: "市场份额增加", salesMod: 1.20, costMod: 1.01, qualityMod: 1.0, hint: "广州产能优势可抢占市场" },
+        { name: "🏢 新品牌入局", desc: "竞争加剧", salesMod: 0.92, costMod: 0.98, qualityMod: 1.0, hint: "各城市均受影响" },
+        { name: "🤝 行业并购", desc: "市场格局变化", salesMod: 1.05, costMod: 1.02, qualityMod: 1.03, hint: "各城市均有机会" },
+        { name: "🌍 人民币升值", desc: "进口原料便宜", salesMod: 0.96, costMod: 0.92, qualityMod: 1.0, hint: "广州进口原料优势" },
+        { name: "💵 人民币贬值", desc: "出口有利", salesMod: 1.05, costMod: 1.08, qualityMod: 1.0, hint: "各城市均受益" },
+        { name: "📦 一带一路", desc: "海外市场拓展", salesMod: 1.15, costMod: 0.98, qualityMod: 1.03, hint: "广州出口优势" },
+        { name: "🎬 国潮运动鞋", desc: "国产品牌受欢迎", salesMod: 1.15, costMod: 1.0, qualityMod: 1.05, hint: "各城市均受益" },
+        { name: "🏋️ 健身房热潮", desc: "运动鞋需求上升", salesMod: 1.12, costMod: 1.02, qualityMod: 1.03, hint: "北京健身氛围优势" },
+        { name: "🍃 环保运动鞋", desc: "绿色产品受追捧", salesMod: 1.08, costMod: 1.05, qualityMod: 1.10, hint: "北京环保理念优势" },
+        { name: "🏡 居家健身", desc: "室内运动鞋需求增", salesMod: 1.12, costMod: 1.0, qualityMod: 1.02, hint: "各城市均受益" },
+        { name: "🔄 产业升级", desc: "机遇与挑战并存", salesMod: 1.05, costMod: 1.05, qualityMod: 1.08, hint: "各城市均有机会" },
+        { name: "🌱 新兴市场开拓", desc: "新客户群体出现", salesMod: 1.10, costMod: 1.03, qualityMod: 1.02, hint: "成都年轻市场优势" }
+    ];
+    
+    function getRandomEvent() {
+        const idx = Math.floor(Math.random() * EVENTS.length);
+        return { ...EVENTS[idx] };
+    }
+    
+    // ==================== 全局状态 ====================
+    let teams = [];
+    let currentRound = 0;
+    let currentEvent = null;
+    
     const MAX_ROUNDS = 6;
     const START_CAPITAL = 400;
     const BANKRUPT_LIMIT = -200;
     
-    const CITIES = {
-        "上海": { costIndex: 1.0, marketBase: 1200, prodCostBase: 28 },
-        "北京": { costIndex: 1.05, marketBase: 1150, prodCostBase: 30 },
-        "广州": { costIndex: 0.92, marketBase: 1000, prodCostBase: 25 },
-        "成都": { costIndex: 0.85, marketBase: 900, prodCostBase: 22 }
-    };
-    
-    // 全局数据
-    let teams = [];
-    let currentRound = 1;
-    let chartCache = {};
-    
-    // ==================== 核心计算引擎 ====================
-    function calculateProfit(team) {
-        const cityCfg = CITIES[team.city] || CITIES["上海"];
-        
-        // 成本计算
-        const unitCost = cityCfg.prodCostBase * cityCfg.costIndex;
-        const prodCost = (team.quantity || 150) * unitCost;
-        const totalCost = prodCost + (team.quality || 0) + (team.marketing || 0);
-        
-        // 竞争力计算
-        const PQI = (team.quantity > 0 ? (team.quality || 0) / team.quantity : 0);
-        const SPI = (team.marketing || 0) * (1 + 0.1 * (team.agents || 0));
-        
-        const priceScore = Math.max(0, Math.min(1, (180 - (team.price || 60)) / 150));
-        const qualityScore = Math.min(1, PQI / 3.0);
-        const marketingScore = Math.min(1, SPI / 200);
-        
-        const attrScore = priceScore * 0.6 + qualityScore * 0.25 + marketingScore * 0.15;
-        
-        // 市场需求
-        const marketBase = cityCfg.marketBase * (0.85 + Math.random() * 0.3);
-        const share = attrScore * 0.8 + 0.2;
-        
-        let sales = Math.floor(marketBase * share);
-        sales = Math.min(sales, team.quantity || 150);
-        sales = Math.max(0, sales);
-        
-        const revenue = sales * (team.price || 60);
-        const profit = revenue - totalCost;
-        
-        return { profit, sales, revenue };
+    // 获取城市配置
+    function getCityConfig(cityName) {
+        return CITIES_DB[cityName] || CITIES_DB["上海"];
     }
     
-    // 更新所有队伍的净资产
-    function updateAllTeams() {
+    // 系统自动计算营销支出
+    function calculateMarketing(price, quantity) {
+        let scaleFactor = Math.max(0.5, 1 - (quantity / 2500));
+        let marketingPerUnit = price * 0.75 * scaleFactor;
+        let totalMarketing = marketingPerUnit * quantity / 10000;
+        return Math.max(8, Math.min(350, totalMarketing));
+    }
+    
+    // ==================== 计算本轮利润 ====================
+    function calculateAndAccumulate(decisions) {
+        if (!currentEvent) {
+            alert("请先点击「推进至下一轮」生成事件");
+            return false;
+        }
+        if (!decisions || decisions.length === 0) {
+            alert("没有有效的决策数据");
+            return false;
+        }
+        
         for (let team of teams) {
-            if (team.status === "bankrupt") continue;
-            if (team.status === "completed") continue;
+            if (team.status === "bankrupt" || team.status === "completed") continue;
             
-            const { profit } = calculateProfit(team);
+            let decision = decisions.find(d => d.name === team.name);
+            if (!decision) {
+                decision = { quantity: 8000, quality: 20, price: 65, agents: 2 };
+            }
+            
+            let marketing = calculateMarketing(decision.price, decision.quantity);
+            const cityCfg = getCityConfig(team.city);
+            
+            let scaleEfficiency = Math.max(0.55, 1 - (decision.quantity / 3500));
+            let unitCost = cityCfg.prodCostBase * cityCfg.costIndex * scaleEfficiency * currentEvent.costMod;
+            let prodCost = decision.quantity * unitCost / 10000;
+            let effectiveQuality = decision.quality * (currentEvent.qualityMod || 1.0) * cityCfg.qualityBonus;
+            let effectiveMarketing = marketing * (1 + 0.08 * decision.agents);
+            let totalCost = prodCost + effectiveQuality + effectiveMarketing;
+            
+            let priceScore = Math.max(0.25, Math.min(1.2, 80 / decision.price)) * (cityCfg.priceBonus || 1.0);
+            let qualityScore = Math.min(1.35, effectiveQuality / 28);
+            let marketingScore = Math.min(1.35, effectiveMarketing / 38);
+            let competitiveness = priceScore * 0.35 + qualityScore * 0.35 + marketingScore * 0.30;
+            
+            let marketSize = cityCfg.marketBase * (0.75 + Math.random() * 0.5) * currentEvent.salesMod;
+            let sales = Math.floor(marketSize * competitiveness);
+            sales = Math.min(sales, decision.quantity);
+            sales = Math.max(0, sales);
+            
+            let revenue = sales * decision.price / 10000;
+            let profit = revenue - totalCost;
+            
+            team.netWorth = team.netWorth + profit;
             team.lastProfit = profit;
-            team.netWorth = (team.netWorth || START_CAPITAL) + profit;
+            team.lastSales = sales;
+            team.lastMarketing = marketing;
+            team.lastDecisions = { ...decision, marketing: marketing };
             
-            // 记录历史
-            if (!team.history) team.history = [START_CAPITAL];
-            team.history.push(team.netWorth);
-            if (team.history.length > 7) team.history.shift();
+            if (!team.history) team.history = [];
+            team.history.push({ round: currentRound, profit: profit, netWorth: team.netWorth, event: currentEvent.name });
             
-            // 状态判定
             if (team.netWorth <= BANKRUPT_LIMIT) {
                 team.status = "bankrupt";
             } else if (team.round >= MAX_ROUNDS) {
@@ -278,302 +367,240 @@
             }
         }
         
-        // 按净资产排序
-        teams.sort((a, b) => (b.netWorth || START_CAPITAL) - (a.netWorth || START_CAPITAL));
+        for (let decision of decisions) {
+            let existing = teams.find(t => t.name === decision.name);
+            if (!existing) {
+                let marketing = calculateMarketing(decision.price, decision.quantity);
+                const cityCfg = getCityConfig(decision.city);
+                let scaleEfficiency = Math.max(0.55, 1 - (decision.quantity / 3500));
+                let unitCost = cityCfg.prodCostBase * cityCfg.costIndex * scaleEfficiency * currentEvent.costMod;
+                let prodCost = decision.quantity * unitCost / 10000;
+                let effectiveQuality = decision.quality * (currentEvent.qualityMod || 1.0) * cityCfg.qualityBonus;
+                let effectiveMarketing = marketing * (1 + 0.08 * decision.agents);
+                let totalCost = prodCost + effectiveQuality + effectiveMarketing;
+                
+                let priceScore = Math.max(0.25, Math.min(1.2, 80 / decision.price)) * (cityCfg.priceBonus || 1.0);
+                let qualityScore = Math.min(1.35, effectiveQuality / 28);
+                let marketingScore = Math.min(1.35, effectiveMarketing / 38);
+                let competitiveness = priceScore * 0.35 + qualityScore * 0.35 + marketingScore * 0.30;
+                
+                let marketSize = cityCfg.marketBase * (0.75 + Math.random() * 0.5) * currentEvent.salesMod;
+                let sales = Math.floor(marketSize * competitiveness);
+                sales = Math.min(sales, decision.quantity);
+                sales = Math.max(0, sales);
+                
+                let revenue = sales * decision.price / 10000;
+                let profit = revenue - totalCost;
+                
+                let newTeam = {
+                    name: decision.name,
+                    city: decision.city,
+                    netWorth: START_CAPITAL + profit,
+                    round: currentRound,
+                    lastProfit: profit,
+                    lastSales: sales,
+                    lastMarketing: marketing,
+                    lastDecisions: { ...decision, marketing: marketing },
+                    status: "active",
+                    history: [{ round: currentRound, profit: profit, netWorth: START_CAPITAL + profit, event: currentEvent.name }]
+                };
+                teams.push(newTeam);
+            }
+        }
+        
+        for (let team of teams) {
+            if (team.status === "active") {
+                team.round = currentRound;
+            }
+        }
+        
+        teams.sort((a, b) => b.netWorth - a.netWorth);
+        updateUI();
+        document.getElementById("statusText").innerHTML = `✅ 第${currentRound}轮计算完成！利润已累加`;
+        return true;
     }
     
     // 推进到下一轮
-    function advanceToNextRound() {
+    function nextRound() {
         if (currentRound >= MAX_ROUNDS) {
             alert("🎉 比赛已全部完成！");
             return;
         }
         
-        // 先计算本轮结果
-        updateAllTeams();
-        
-        // 轮次+1
+        currentEvent = getRandomEvent();
         currentRound++;
         
-        // 重置队伍状态（保留数据但允许新一轮填写）
-        for (let team of teams) {
-            if (team.status === "active") {
-                team.round = currentRound;
-                // 保留上一轮决策作为默认值，学生可覆盖
-            }
-        }
+        document.getElementById("eventRound").innerText = currentRound;
+        document.getElementById("eventName").innerHTML = `${currentEvent.name} · ${currentEvent.desc}`;
+        document.getElementById("eventEffect").innerHTML = `📈 需求 ${currentEvent.salesMod > 1 ? '+' : ''}${Math.round((currentEvent.salesMod-1)*100)}% | 💰 成本 ${currentEvent.costMod > 1 ? '+' : ''}${Math.round((currentEvent.costMod-1)*100)}% | ✨ 质量 ${currentEvent.qualityMod > 1 ? '+' : ''}${Math.round((currentEvent.qualityMod-1)*100)}% | 💡 策略提示: ${currentEvent.hint}`;
+        
+        document.getElementById("currentRoundSpan").innerText = currentRound;
+        document.getElementById("pasteRoundNum").innerText = currentRound;
+        document.getElementById("statusText").innerHTML = `🎲 第${currentRound}轮事件已生成！请让学生根据事件+城市背景填写决策`;
         
         updateUI();
-        alert(`✅ 已推进至第 ${currentRound} 轮！学生可以填写新一轮决策数据，然后教师重新粘贴导入`);
     }
     
-    // ==================== 数据导入 ====================
-    // 解析粘贴的表格数据
+    // 解析粘贴数据
     function parseTableData(text) {
         let lines = text.trim().split(/\r?\n/);
         if (lines.length < 2) return [];
-        
         let rows = [];
         let startRow = 0;
-        
-        // 检查第一行是否是表头
         let firstLine = lines[0].toLowerCase();
-        if (firstLine.includes("队伍") || firstLine.includes("名称") || 
-            firstLine.includes("城市") || firstLine.includes("生产")) {
-            startRow = 1;  // 跳过表头
-        }
+        if (firstLine.includes("队伍") || firstLine.includes("名称")) startRow = 1;
         
         for (let i = startRow; i < lines.length; i++) {
             let line = lines[i].trim();
             if (!line) continue;
-            
-            // 支持 Tab 或 逗号 分隔
             let parts = line.split(/\t|,/);
-            if (parts.length < 3) continue;
-            
+            if (parts.length < 4) continue;
             let name = parts[0]?.trim();
             if (!name || name === "队伍名称") continue;
-            
             let city = parts[1]?.trim() || "上海";
-            if (!CITIES[city]) city = "上海";
-            
-            let quantity = parseInt(parts[2]) || 150;
-            let quality = parseInt(parts[3]) || 30;
-            let price = parseInt(parts[4]) || 65;
-            let agents = parseInt(parts[5]) || 3;
-            let marketing = parseInt(parts[6]) || 35;
+            if (!CITIES_DB[city]) city = "上海";
             
             rows.push({
                 name: name,
                 city: city,
-                quantity: Math.max(30, Math.min(800, quantity)),
-                quality: Math.max(0, Math.min(200, quality)),
-                price: Math.max(30, Math.min(180, price)),
-                agents: Math.max(0, Math.min(12, agents)),
-                marketing: Math.max(5, Math.min(250, marketing))
+                quantity: Math.max(1000, Math.min(60000, parseInt(parts[2]) || 8000)),
+                quality: Math.max(5, Math.min(250, parseInt(parts[3]) || 20)),
+                price: Math.max(35, Math.min(250, parseInt(parts[4]) || 65)),
+                agents: Math.max(0, Math.min(20, parseInt(parts[5]) || 2))
             });
         }
-        
         return rows;
     }
     
-    // 导入队伍数据
-    function importTeams(rows) {
-        if (rows.length === 0) {
-            alert("未识别到有效数据，请检查格式");
-            return false;
-        }
-        
-        for (let row of rows) {
-            let existing = teams.find(t => t.name === row.name);
-            
-            if (existing) {
-                // 更新现有队伍
-                existing.quantity = row.quantity;
-                existing.quality = row.quality;
-                existing.price = row.price;
-                existing.agents = row.agents;
-                existing.marketing = row.marketing;
-                if (existing.status !== "bankrupt" && existing.status !== "completed") {
-                    existing.status = "active";
-                }
-            } else {
-                // 创建新队伍
-                teams.push({
-                    name: row.name,
-                    city: row.city,
-                    netWorth: START_CAPITAL,
-                    round: currentRound,
-                    loan: 0,
-                    quantity: row.quantity,
-                    quality: row.quality,
-                    price: row.price,
-                    agents: row.agents,
-                    marketing: row.marketing,
-                    lastProfit: 0,
-                    status: "active",
-                    history: [START_CAPITAL]
-                });
-            }
-        }
-        
-        // 重新计算
-        updateAllTeams();
-        updateUI();
-        
-        document.getElementById("syncStatusText").innerHTML = "✅ 数据已更新";
-        document.getElementById("lastUpdateTime").innerHTML = new Date().toLocaleTimeString();
-        setTimeout(() => {
-            document.getElementById("syncStatusText").innerHTML = "等待导入数据";
-        }, 2000);
-        
-        return true;
-    }
-    
-    // ==================== UI渲染 ====================
+    // UI渲染
     function updateUI() {
-        document.getElementById("currentRoundSpan").innerText = currentRound;
         document.getElementById("teamCount").innerText = teams.length;
-        
-        // 渲染排行榜
         let rankingBody = document.getElementById("rankingBody");
         rankingBody.innerHTML = "";
+        if (teams.length === 0) {
+            rankingBody.innerHTML = '<tr><td colspan="7">暂无数据，粘贴决策后会自动创建</td></tr>';
+        } else {
+            teams.forEach((team, idx) => {
+                let tr = rankingBody.insertRow();
+                tr.insertCell(0).innerText = idx + 1;
+                tr.insertCell(1).innerText = team.name;
+                tr.insertCell(2).innerText = team.city;
+                let netClass = team.netWorth >= START_CAPITAL ? "badge-profit" : "badge-loss";
+                tr.insertCell(3).innerHTML = `<strong class="${netClass}">${team.netWorth.toFixed(1)}万</strong>`;
+                tr.insertCell(4).innerText = `${team.round || 0}/${MAX_ROUNDS}`;
+                let statusText = team.status === "bankrupt" ? "💀破产" : (team.status === "completed" ? "🏁完成" : "🔹运营中");
+                tr.insertCell(5).innerHTML = `<span style="color:${team.status === "bankrupt" ? "#ef4444" : (team.status === "completed" ? "#10b981" : "#3b82f6")}">${statusText}</span>`;
+                let profitClass = (team.lastProfit || 0) >= 0 ? "badge-profit" : "badge-loss";
+                tr.insertCell(6).innerHTML = `<span class="${profitClass}">${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>`;
+            });
+        }
         
-        teams.forEach((team, idx) => {
-            let tr = rankingBody.insertRow();
-            tr.insertCell(0).innerText = idx + 1;
-            tr.insertCell(1).innerText = team.name;
-            tr.insertCell(2).innerText = team.city;
-            let netClass = (team.netWorth || START_CAPITAL) >= START_CAPITAL ? "badge-profit" : "badge-loss";
-            tr.insertCell(3).innerHTML = `<strong class="${netClass}">${(team.netWorth || START_CAPITAL).toFixed(1)}万</strong>`;
-            tr.insertCell(4).innerText = `${team.round}/${MAX_ROUNDS}`;
-            
-            let statusText = team.status === "bankrupt" ? "💀破产" : (team.status === "completed" ? "🏁完成" : "🔹运营中");
-            let statusColor = team.status === "bankrupt" ? "#ef4444" : (team.status === "completed" ? "#10b981" : "#3b82f6");
-            tr.insertCell(5).innerHTML = `<span style="color:${statusColor}">${statusText}</span>`;
-            
-            let profitClass = (team.lastProfit || 0) >= 0 ? "badge-profit" : "badge-loss";
-            tr.insertCell(6).innerHTML = `<span class="${profitClass}">${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>`;
-        });
-        
-        // 渲染队伍卡片
         let container = document.getElementById("playersContainer");
         container.innerHTML = "";
-        
-        for (let team of teams) {
-            let card = document.createElement("div");
-            card.className = "player-card";
-            
-            let statusClass = team.status === "bankrupt" ? "status-bankrupt" : (team.status === "completed" ? "status-done" : "status-active");
-            let statusText = team.status === "bankrupt" ? "破产" : (team.status === "completed" ? "已完成" : "运营中");
-            let netColor = (team.netWorth || START_CAPITAL) >= START_CAPITAL ? "#10b981" : "#ef4444";
-            
-            card.innerHTML = `
-                <div class="card-header">
-                    <span class="company-name">🏢 ${team.name}</span>
-                    <span class="city-badge">${team.city}</span>
-                    <span class="networth" style="color:${netColor}">💰 ${(team.netWorth || START_CAPITAL).toFixed(1)}万</span>
-                </div>
-                <div class="stats-grid">
-                    <span>🎯 轮次: ${team.round}/${MAX_ROUNDS}</span>
-                    <span>📈 上轮: ${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>
-                    <span class="${statusClass}">${statusText}</span>
-                </div>
-                <div class="decisions-preview">
-                    <strong>📋 本轮决策：</strong><br>
-                    <span>📦 生产: ${team.quantity || '-'}</span>
-                    <span>✨ 质量: ${team.quality || '-'}万</span>
-                    <span>💰 定价: ${team.price || '-'}万</span>
-                    <span>🤝 代理: ${team.agents || '-'}人</span>
-                    <span>📢 营销: ${team.marketing || '-'}万</span>
-                </div>
-            `;
-            container.appendChild(card);
+        if (teams.length === 0) {
+            container.innerHTML = '<div class="empty-hint">✨ 暂无队伍<br>粘贴学生决策后自动创建</div>';
+        } else {
+            for (let team of teams) {
+                let card = document.createElement("div");
+                card.className = "player-card";
+                let statusClass = team.status === "bankrupt" ? "status-bankrupt" : (team.status === "completed" ? "status-done" : "status-active");
+                let netColor = team.netWorth >= START_CAPITAL ? "#10b981" : "#ef4444";
+                let cityBg = CITIES_DB[team.city]?.color || "#3b82f6";
+                
+                let historyHtml = "";
+                if (team.history && team.history.length > 0) {
+                    historyHtml = `<div class="round-history"><strong>📜 历史轮次：</strong><br>`;
+                    for (let h of team.history.slice(-5)) {
+                        historyHtml += `<span>R${h.round}: ${h.profit > 0 ? '+' : ''}${h.profit.toFixed(0)}万 → ${h.netWorth.toFixed(0)}万</span>`;
+                    }
+                    historyHtml += `</div>`;
+                }
+                
+                let decisionHtml = "";
+                if (team.lastDecisions) {
+                    decisionHtml = `<div class="stats-grid" style="background:#fff; font-size:0.7rem;">
+                        <span>👟 产量: ${(team.lastDecisions.quantity/1000).toFixed(0)}千双</span>
+                        <span>✨ 质量: ${team.lastDecisions.quality}万</span>
+                        <span>💰 定价: ${team.lastDecisions.price}元</span>
+                        <span>🤝 代理: ${team.lastDecisions.agents}人</span>
+                        <span>📢 营销: ${team.lastMarketing?.toFixed(1)}万</span>
+                        <span>📊 销量: ${(team.lastSales/1000).toFixed(0)}千双</span>
+                    </div>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="company-name">🏢 ${team.name}</span>
+                        <span class="city-badge" style="background:${cityBg}20; color:${cityBg};">${team.city}</span>
+                        <span class="networth" style="color:${netColor}">💰 ${team.netWorth.toFixed(1)}万</span>
+                    </div>
+                    <div class="stats-grid">
+                        <span>🎯 已完成: ${team.round || 0}/${MAX_ROUNDS}轮</span>
+                        <span>📈 上轮利润: ${(team.lastProfit || 0) > 0 ? '+' : ''}${(team.lastProfit || 0).toFixed(1)}万</span>
+                        <span class="${statusClass}">${team.status === "bankrupt" ? "破产" : (team.status === "completed" ? "已完成" : "运营中")}</span>
+                    </div>
+                    ${decisionHtml}
+                    ${historyHtml}
+                `;
+                container.appendChild(card);
+            }
         }
-        
-        // 简单图表（可选）
-        drawCharts();
     }
     
-    function drawCharts() {
-        // 简化：不画复杂图表，避免性能问题
-    }
-    
-    // 重置游戏
     function resetGame() {
-        if (confirm("⚠️ 重置所有队伍数据？不可恢复！")) {
+        if (confirm("⚠️ 重置所有累计数据？不可恢复！")) {
             teams = [];
-            currentRound = 1;
+            currentRound = 0;
+            currentEvent = null;
+            document.getElementById("eventName").innerHTML = "点击「推进至下一轮」开始";
+            document.getElementById("eventEffect").innerHTML = "等待开始...";
+            document.getElementById("currentRoundSpan").innerText = "0";
+            document.getElementById("statusText").innerHTML = "游戏已重置";
             updateUI();
-            alert("比赛已重置");
         }
     }
     
-    // 导出CSV
-    function exportCSV() {
-        let csv = "排名,队伍名称,城市,净资产(万),当前轮次,状态,上轮利润,生产数量,质量投资,定价,代理商,营销支出\n";
-        teams.forEach((team, idx) => {
-            csv += `${idx+1},${team.name},${team.city},${(team.netWorth || START_CAPITAL).toFixed(1)},${team.round}/${MAX_ROUNDS},${team.status},${(team.lastProfit || 0).toFixed(1)},${team.quantity || 0},${team.quality || 0},${team.price || 0},${team.agents || 0},${team.marketing || 0}\n`;
+    function exportData() {
+        if (teams.length === 0) { alert("无数据"); return; }
+        let csv = "排名,队伍名称,城市,累计净资产(万),已完成轮次,状态,上轮利润(万),上轮销量(双)\n";
+        teams.forEach((t, i) => {
+            csv += `${i+1},${t.name},${t.city},${t.netWorth.toFixed(1)},${t.round||0}/${MAX_ROUNDS},${t.status},${(t.lastProfit||0).toFixed(1)},${t.lastSales||0}\n`;
         });
-        let blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+        let blob = new Blob(["\uFEFF" + csv], {type: "text/csv"});
         let a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `ABS比赛数据_轮次${currentRound}.csv`;
+        a.download = `运动鞋比赛_第${currentRound}轮.csv`;
         a.click();
     }
     
-    // ==================== 事件绑定 ====================
-    function bindEvents() {
-        // 显示粘贴区域
-        document.getElementById("showPasteBtn").onclick = () => {
-            document.getElementById("pasteArea").style.display = "block";
-        };
-        
-        // 取消粘贴
-        document.getElementById("cancelPasteBtn").onclick = () => {
-            document.getElementById("pasteArea").style.display = "none";
-            document.getElementById("pasteData").value = "";
-        };
-        
-        // 确认导入
-        document.getElementById("confirmPasteBtn").onclick = () => {
-            let text = document.getElementById("pasteData").value;
-            if (!text.trim()) {
-                alert("请先粘贴表格数据");
-                return;
-            }
-            
-            let rows = parseTableData(text);
-            if (rows.length === 0) {
-                alert("未识别到有效数据，请检查格式\n\n格式应为：队伍名\t城市\t数量\t质量\t定价\t代理\t营销");
-                return;
-            }
-            
-            importTeams(rows);
-            document.getElementById("pasteArea").style.display = "none";
-            document.getElementById("pasteData").value = "";
-        };
-        
-        // 推进回合
-        document.getElementById("advanceRoundBtn").onclick = () => {
-            if (teams.length === 0) {
-                alert("请先导入队伍数据");
-                return;
-            }
-            if (confirm(`确认推进到第 ${currentRound + 1} 轮？`)) {
-                advanceToNextRound();
-            }
-        };
-        
-        // 重置比赛
-        document.getElementById("resetGameBtn").onclick = () => {
-            resetGame();
-        };
-        
-        // 导出CSV
-        document.getElementById("exportCsvBtn").onclick = () => {
-            if (teams.length === 0) {
-                alert("没有数据可导出");
-                return;
-            }
-            exportCSV();
-        };
-    }
+    // 事件绑定
+    document.getElementById("showPasteBtn").onclick = () => {
+        if (currentRound === 0) { alert("请先点击「推进至下一轮」生成事件"); return; }
+        document.getElementById("pasteArea").style.display = "block";
+    };
+    document.getElementById("cancelPasteBtn").onclick = () => {
+        document.getElementById("pasteArea").style.display = "none";
+        document.getElementById("pasteData").value = "";
+    };
+    document.getElementById("confirmPasteBtn").onclick = () => {
+        let text = document.getElementById("pasteData").value;
+        if (!text.trim()) { alert("请先粘贴数据"); return; }
+        let rows = parseTableData(text);
+        if (rows.length === 0) { alert("未识别到有效数据"); return; }
+        calculateAndAccumulate(rows);
+        document.getElementById("pasteArea").style.display = "none";
+        document.getElementById("pasteData").value = "";
+    };
+    document.getElementById("nextRoundBtn").onclick = () => { nextRound(); };
+    document.getElementById("resetGameBtn").onclick = resetGame;
+    document.getElementById("exportCsvBtn").onclick = exportData;
     
-    // 初始化示例数据（演示用）
-    function initDemoData() {
-        teams = [
-            { name: "飞跃集团", city: "上海", netWorth: 420, round: 1, quantity: 220, quality: 35, price: 72, agents: 4, marketing: 45, lastProfit: 20, status: "active", history: [400, 420] },
-            { name: "创新科技", city: "北京", netWorth: 385, round: 1, quantity: 180, quality: 28, price: 68, agents: 3, marketing: 38, lastProfit: -15, status: "active", history: [400, 385] },
-            { name: "西部之星", city: "成都", netWorth: 450, round: 1, quantity: 250, quality: 42, price: 65, agents: 5, marketing: 52, lastProfit: 50, status: "active", history: [400, 450] },
-            { name: "岭南实业", city: "广州", netWorth: 405, round: 1, quantity: 200, quality: 30, price: 70, agents: 3, marketing: 40, lastProfit: 5, status: "active", history: [400, 405] }
-        ];
-        updateUI();
-    }
-    
-    // 启动
-    bindEvents();
-    initDemoData();
+    // 初始化
+    renderCityCards();
+    teams = [];
+    currentRound = 0;
+    currentEvent = null;
+    updateUI();
 </script>
 </body>
 </html>
